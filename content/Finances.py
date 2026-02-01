@@ -1,7 +1,6 @@
 from IPython.display import display, HTML, clear_output
 import base64
 import gettext
-import io
 import ipywidgets as widgets
 import json
 import pandas as pd
@@ -33,14 +32,20 @@ class Finances:
             description=_("Total Budget (CHF):"),
             style={'description_width': 'initial'})
 
+        self.NAME_KEY = "Name"
         self.ROLE_KEY = "Role"
+        self.HOURLY_RATE_KEY = "Hourly Rate (CHF)"
+        self.EMPLOYMENT_PERCENTAGE_KEY = "Employment (%)"
+        self.RESEARCH_PERCENTAGE_KEY = "Research (%)"
+        self.ACQUISITION_HOURS_KEY = "Acquisition (h)"
 
         self.COLUMNS = {
-            "Name": _("Name"),
+            self.NAME_KEY: _("Name"),
             self.ROLE_KEY: _("Role"),
-            "Hourly Rate (CHF)": _("Hourly Rate (CHF)"),
-            "Employment (%)": _("Employment (%)"),
-            "Research (%)": _("Research (%)")
+            self.HOURLY_RATE_KEY: _("Hourly Rate (CHF)"),
+            self.EMPLOYMENT_PERCENTAGE_KEY: _("Employment (%)"),
+            self.RESEARCH_PERCENTAGE_KEY: _("Research (%)"),
+            self.ACQUISITION_HOURS_KEY: _("Acquisition (h)")
             }
         # see https://en.wikipedia.org/wiki/List_of_academic_ranks
         self.ROLES = {
@@ -58,11 +63,12 @@ class Finances:
         self.df = pd.DataFrame(columns=self.COLUMNS.keys())
 
         self.column_widths = {
-            list(self.COLUMNS.keys())[0]: "150px",
-            list(self.COLUMNS.keys())[1]: "150px",
-            list(self.COLUMNS.keys())[2]: "230px",
-            list(self.COLUMNS.keys())[3]: "250px",
-            list(self.COLUMNS.keys())[4]: "250px",
+            self.NAME_KEY: "150px",
+            self.ROLE_KEY: "110px",
+            self.HOURLY_RATE_KEY: "140px",
+            self.EMPLOYMENT_PERCENTAGE_KEY: "210px",
+            self.RESEARCH_PERCENTAGE_KEY: "210px",
+            self.ACQUISITION_HOURS_KEY: "150px",
             self.ACTIONS: "100px"
         }
 
@@ -71,33 +77,19 @@ class Finances:
         self.known_hourly_rates = ["55", "69", "87", "89", "103", "117"]
 
         self.input_widgets = {
-            list(self.COLUMNS.keys())[0]: widgets.Text(layout=widgets.Layout(
-                width=self.column_widths[list(self.COLUMNS.keys())[0]])),
-
-            list(self.COLUMNS.keys())[1]: widgets.Dropdown(
-                options=self.ROLES.values(), layout=widgets.Layout(
-                    width=self.column_widths[list(self.COLUMNS.keys())[1]])),
-
-            list(self.COLUMNS.keys())[2]: widgets.Combobox(
-                options=self.known_hourly_rates,
-                placeholder=_("Click or type for suggestions"),
-                ensure_option=False,
-                layout=widgets.Layout(
-                    width=self.column_widths[list(self.COLUMNS.keys())[2]])),
-
-            list(self.COLUMNS.keys())[3]: widgets.FloatSlider(
-                min=0, max=100, step=5, value=100,
-                layout=widgets.Layout(
-                    width=self.column_widths[list(self.COLUMNS.keys())[3]])),
-
-            list(self.COLUMNS.keys())[4]: widgets.FloatSlider(
-                min=0, max=100, step=5, value=100,
-                layout=widgets.Layout(
-                    width=self.column_widths[list(self.COLUMNS.keys())[4]]))
+            self.NAME_KEY:
+                self.get_name_text(""),
+            self.ROLE_KEY:
+                self.get_role_dropdown(self.DEFAULT_ROLE),
+            self.HOURLY_RATE_KEY:
+                self.get_hourly_rate_combobox(""),
+            self.EMPLOYMENT_PERCENTAGE_KEY:
+                self.get_float_slider(0, self.EMPLOYMENT_PERCENTAGE_KEY),
+            self.RESEARCH_PERCENTAGE_KEY:
+                self.get_float_slider(0, self.RESEARCH_PERCENTAGE_KEY),
+            self.ACQUISITION_HOURS_KEY:
+                self.get_acquisition_floattext(0)
         }
-
-        self.input_widgets[list(self.COLUMNS.keys())[2]].observe(
-            self.validate_hourly_rate, names="value")
 
         self.reset_input_widgets()
 
@@ -136,6 +128,37 @@ class Finances:
         with self.output:
             display(self.output_inner)
 
+    def get_name_text(self, value):
+        return widgets.Text(value=value, layout=widgets.Layout(
+            width=self.column_widths[self.NAME_KEY]))
+
+    def get_role_dropdown(self, value):
+        return widgets.Dropdown(
+            value=value,
+            options=self.ROLES.values(),
+            layout=widgets.Layout(width=self.column_widths[self.ROLE_KEY]))
+
+    def get_hourly_rate_combobox(self, value):
+        combobox = widgets.Combobox(
+            value=value,
+            options=self.known_hourly_rates,
+            ensure_option=False,
+            layout=widgets.Layout(
+                width=self.column_widths[self.HOURLY_RATE_KEY]))
+        combobox.observe(self.validate_hourly_rate, names="value")
+        return combobox
+
+    def get_float_slider(self, value, width_key):
+        return widgets.FloatSlider(
+            min=0, max=100, step=1, value=value,
+            layout=widgets.Layout(
+                width=self.column_widths[width_key]))
+
+    def get_acquisition_floattext(self, value):
+        return widgets.FloatText(
+            value=value, step=0.05, layout=widgets.Layout(
+                width=self.column_widths[self.ACQUISITION_HOURS_KEY]))
+
     def load_data(self, change):
         try:
             content = self.upload_button.value[0]["content"]
@@ -171,12 +194,12 @@ class Finances:
             display(HTML(html))
 
     def reset_input_widgets(self):
-        self.input_widgets[list(self.COLUMNS.keys())[0]].value = ""
-        self.input_widgets[list(self.COLUMNS.keys())[1]].value = (
-            self.DEFAULT_ROLE)
-        self.input_widgets[list(self.COLUMNS.keys())[2]].value = ""
-        self.input_widgets[list(self.COLUMNS.keys())[3]].value = 80
-        self.input_widgets[list(self.COLUMNS.keys())[4]].value = 50
+        self.input_widgets[self.NAME_KEY].value = ""
+        self.input_widgets[self.ROLE_KEY].value = (self.DEFAULT_ROLE)
+        self.input_widgets[self.HOURLY_RATE_KEY].value = ""
+        self.input_widgets[self.EMPLOYMENT_PERCENTAGE_KEY].value = 80
+        self.input_widgets[self.RESEARCH_PERCENTAGE_KEY].value = 50
+        self.input_widgets[self.ACQUISITION_HOURS_KEY].value = 0
 
     def add_row(self):
         try:
@@ -233,6 +256,44 @@ class Finances:
             # if the new value can't be converted to int, revert the change
             change.owner.value = change.old
 
+    def get_cell(self, idx, row, col):
+
+        if col == self.NAME_KEY:
+            cell = self.get_name_text(row[col])
+
+        elif col == self.ROLE_KEY:
+            cell = self.get_role_dropdown(self.ROLES[row[col]])
+
+        elif col == self.HOURLY_RATE_KEY:
+            cell = self.get_hourly_rate_combobox(row[col])
+
+        elif col == self.RESEARCH_PERCENTAGE_KEY:
+            cell = self.get_float_slider(
+                row[col], self.RESEARCH_PERCENTAGE_KEY)
+
+        elif col == self.EMPLOYMENT_PERCENTAGE_KEY:
+            cell = self.get_float_slider(
+                row[col], self.EMPLOYMENT_PERCENTAGE_KEY)
+
+        elif col == self.ACQUISITION_HOURS_KEY:
+            cell = self.get_acquisition_floattext(row[col])
+
+        else:
+            print("Warning: unhandled col", col)
+
+        def make_update_func(idx, col):
+            def update(change):
+                new_value = change['new']
+                if col == self.ROLE_KEY:
+                    self.df.at[idx, col] = self.REVERSED_ROLES.get(
+                        new_value, new_value)
+                else:
+                    self.df.at[idx, col] = new_value
+            return update
+
+        cell.observe(make_update_func(idx, col), names='value')
+        return cell
+
     def refresh_table(self):
         filtered = self.filter_df()
         row_boxes = []
@@ -252,48 +313,7 @@ class Finances:
             cells = []
 
             for col in self.COLUMNS.keys():
-
-                if (col == list(self.COLUMNS.keys())[3] or
-                        col == list(self.COLUMNS.keys())[4]):
-                    cell = widgets.FloatSlider(
-                        value=row[col], min=0, max=100, step=5,
-                        layout=widgets.Layout(width=self.column_widths[col]))
-
-                elif col == list(self.COLUMNS.keys())[2]:
-                    combobox = widgets.Combobox(
-                        value=row[col],
-                        options=self.known_hourly_rates,
-                        placeholder=_("Click or type for suggestions"),
-                        ensure_option=False,
-                        layout=widgets.Layout(
-                            width=self.column_widths[
-                                list(self.COLUMNS.keys())[2]]))
-                    combobox.observe(self.validate_hourly_rate, names="value")
-                    cell = combobox
-
-                elif col == list(self.COLUMNS.keys())[1]:
-                    cell = widgets.Dropdown(
-                        value=self.ROLES[row[col]],
-                        options=self.ROLES.values(),
-                        layout=widgets.Layout(width=self.column_widths[col])
-                    )
-                else:
-                    cell = widgets.Text(
-                        value=row[col],
-                        layout=widgets.Layout(width=self.column_widths[col]))
-
-                def make_update_func(idx, col):
-                    def update(change):
-                        new_value = change['new']
-                        if col == list(self.COLUMNS.keys())[3]:
-                            self.df.at[idx, col] = self.REVERSED_ROLES.get(
-                                new_value, new_value)
-                        else:
-                            self.df.at[idx, col] = new_value
-                    return update
-
-                cell.observe(make_update_func(idx, col), names='value')
-
+                cell = self.get_cell(idx, row, col)
                 cells.append(cell)
 
             # delete button
@@ -306,10 +326,10 @@ class Finances:
             row_boxes.append(widgets.HBox(
                 cells, layout=widgets.Layout(padding="0px 5px")))
 
-        # --- Alles in output_inner anzeigen ---
+        # --- show everything in output_inner ---
         self.output_inner.children = row_boxes
 
-        # --- Sortierpfeile aktualisieren ---
+        # --- update sorting arrows ---
         for col in self.COLUMNS.keys():
             asc = self.sort_states[col]
             if asc is True:

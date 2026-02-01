@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-01 16:59+0100\n"
+"POT-Creation-Date: 2026-02-01 18:29+0100\n"
 "PO-Revision-Date: 2026-01-31 18:51+0100\n"
 "Last-Translator: Ronny Standtke <ronny.standtke@gmx.net>\n"
 "Language-Team: German <de@li.org>\n"
@@ -16,63 +16,63 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../Finances.py:25
+#: ../Finances.py:24
 msgid "Open"
 msgstr "Öffnen"
 
-#: ../Finances.py:28
+#: ../Finances.py:27
 msgid "Save"
 msgstr "Speichern"
 
-#: ../Finances.py:33
+#: ../Finances.py:32
 msgid "Total Budget (CHF):"
 msgstr "Gesamtbudget (CHF)"
 
-#: ../Finances.py:39
+#: ../Finances.py:43
 msgid "Name"
 msgstr ""
 
-#: ../Finances.py:40
+#: ../Finances.py:44
 msgid "Role"
 msgstr "Rolle"
 
-#: ../Finances.py:41
+#: ../Finances.py:45
 msgid "Hourly Rate (CHF)"
 msgstr "Stundensatz"
 
-#: ../Finances.py:42
+#: ../Finances.py:46
 msgid "Employment (%)"
 msgstr "Beschäftigungsgrad (%)"
 
-#: ../Finances.py:43
+#: ../Finances.py:47
 msgid "Research (%)"
 msgstr "Forschung (%)"
 
-#: ../Finances.py:47
+#: ../Finances.py:48
+msgid "Acquisition (h)"
+msgstr ""
+
+#: ../Finances.py:52
 msgid "Lecturer"
 msgstr "Dozent(in)"
 
-#: ../Finances.py:48
+#: ../Finances.py:53
 msgid "Scientific Staff"
 msgstr "WiMa"
 
-#: ../Finances.py:49
+#: ../Finances.py:54
 msgid "Research Assistant"
 msgstr "Assistent(in)"
 
-#: ../Finances.py:56
+#: ../Finances.py:61
 msgid "Actions"
 msgstr "Aktionen"
 
-#: ../Finances.py:83 ../Finances.py:266
-msgid "Click or type for suggestions"
-msgstr "Für Vorschläge klicken oder tippen"
-
-#: ../Finances.py:105
+#: ../Finances.py:97
 msgid "Add"
 msgstr "Hinzufügen"
 
-#: ../Finances.py:114
+#: ../Finances.py:106
 #, python-brace-format
 msgid "{col} Filter"
 msgstr "{col} filtern"
@@ -108,3 +108,6 @@ msgstr ""
 "                https://jupyterlite.readthedocs.io/en/latest/howto/configure/"
 "advanced/service-worker.html</a>\n"
 "                "
+
+#~ msgid "Click or type for suggestions"
+#~ msgstr "Für Vorschläge klicken oder tippen"
