@@ -50,7 +50,7 @@ msgstr "Forschung (%)"
 
 #: ../Finances.py:48
 msgid "Acquisition (h)"
-msgstr ""
+msgstr "Akquise (h)"
 
 #: ../Finances.py:52
 msgid "Lecturer"
