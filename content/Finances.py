@@ -28,7 +28,7 @@ class Finances:
         self.column_widths = {
             self.COLUMNS[0]: "150px",
             self.COLUMNS[1]: "250px",
-            self.COLUMNS[2]: "160px",
+            self.COLUMNS[2]: "200px",
             self.COLUMNS[3]: "150px",
             self.ACTIONS: "100px"
         }
@@ -57,6 +57,10 @@ class Finances:
                 options=self.ROLES, layout=widgets.Layout(
                     width=self.column_widths[self.COLUMNS[3]]))
         }
+
+        self.input_widgets[self.COLUMNS[2]].observe(
+            self.validate_hourly_rate, names="value")
+
         self.reset_input_widgets()
 
         self.add_button = widgets.Button(
@@ -98,7 +102,7 @@ class Finances:
     def reset_input_widgets(self):
         self.input_widgets[self.COLUMNS[0]].value = ""
         self.input_widgets[self.COLUMNS[1]].value = 80
-        self.input_widgets[self.COLUMNS[2]].value = 69
+        self.input_widgets[self.COLUMNS[2]].value = ""
         self.input_widgets[self.COLUMNS[3]].value = self.DEFAULT_ROLE
 
     def add_row(self):
@@ -142,6 +146,15 @@ class Finances:
         self.df = self.df.drop(index=idx).reset_index(drop=True)
         self.refresh_table()
 
+    def validate_hourly_rate(self, change):
+        try:
+            # if there is any text, it must be possible to convert to int
+            if change["new"]:
+                int(change["new"])
+        except ValueError:
+            # if the new value can't be converted to int, revert the change
+            change.owner.value = change.old
+
     def refresh_table(self):
         filtered = self.filter_df()
         row_boxes = []
@@ -168,13 +181,15 @@ class Finances:
                         layout=widgets.Layout(width=self.column_widths[col]))
 
                 elif col == self.COLUMNS[2]:
-                    cell = widgets.Combobox(
+                    combobox = widgets.Combobox(
                         value=row[col],
                         options=self.known_hourly_rates,
                         placeholder=_("Click or type for suggestions"),
                         ensure_option=False,
                         layout=widgets.Layout(
                             width=self.column_widths[self.COLUMNS[2]]))
+                    combobox.observe(self.validate_hourly_rate, names="value")
+                    cell = combobox
 
                 elif col == self.COLUMNS[3]:
                     cell = widgets.Dropdown(

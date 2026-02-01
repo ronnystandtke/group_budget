@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-31 18:51+0100\n"
+"POT-Creation-Date: 2026-02-01 11:44+0100\n"
 "PO-Revision-Date: 2026-01-31 18:51+0100\n"
 "Last-Translator: Ronny Standtke <ronny.standtke@gmx.net>\n"
 "Language-Team: German <de@li.org>\n"
@@ -48,11 +48,15 @@ msgstr "Assistent(in)"
 msgid "Actions"
 msgstr "Aktionen"
 
-#: ../Finances.py:57
+#: ../Finances.py:51 ../Finances.py:187
+msgid "Click or type for suggestions"
+msgstr "Für Vorschläge klicken oder tippen"
+
+#: ../Finances.py:67
 msgid "Add"
 msgstr "Hinzufügen"
 
-#: ../Finances.py:66
+#: ../Finances.py:76
 #, python-brace-format
 msgid "{col} Filter"
 msgstr "{col} filtern"
