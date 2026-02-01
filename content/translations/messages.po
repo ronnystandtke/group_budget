@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-01 21:47+0100\n"
+"POT-Creation-Date: 2026-02-01 23:04+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,67 +25,79 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
-#: ../Finances.py:36
+#: ../Finances.py:44
 msgid "Total Budget (CHF):"
 msgstr ""
 
 #: ../Finances.py:50
-msgid "Name"
-msgstr ""
-
-#: ../Finances.py:51
-msgid "Role"
-msgstr ""
-
-#: ../Finances.py:52
-msgid "Hourly Rate (CHF)"
-msgstr ""
-
-#: ../Finances.py:53
-msgid "Employment (%)"
-msgstr ""
-
-#: ../Finances.py:54
-msgid "Research (%)"
-msgstr ""
-
-#: ../Finances.py:55
-msgid "Acquisition (h)"
+msgid "Acquisition Costs (CHF):"
 msgstr ""
 
 #: ../Finances.py:56
-msgid "Acquisition Cost (CHF)"
-msgstr ""
-
-#: ../Finances.py:57
-msgid "Administration (h)"
-msgstr ""
-
-#: ../Finances.py:58
-msgid "Administration Cost (CHF)"
+msgid "Administative Costs (CHF):"
 msgstr ""
 
 #: ../Finances.py:62
+msgid "Remaining Budget (CHF):"
+msgstr ""
+
+#: ../Finances.py:77
+msgid "Name"
+msgstr ""
+
+#: ../Finances.py:78
+msgid "Role"
+msgstr ""
+
+#: ../Finances.py:79
+msgid "Hourly Rate (CHF)"
+msgstr ""
+
+#: ../Finances.py:80
+msgid "Employment (%)"
+msgstr ""
+
+#: ../Finances.py:81
+msgid "Research (%)"
+msgstr ""
+
+#: ../Finances.py:82
+msgid "Acquisition (h)"
+msgstr ""
+
+#: ../Finances.py:83
+msgid "Acquisition Cost (CHF)"
+msgstr ""
+
+#: ../Finances.py:84
+msgid "Administration (h)"
+msgstr ""
+
+#: ../Finances.py:85
+msgid "Administration Cost (CHF)"
+msgstr ""
+
+#: ../Finances.py:89
 msgid "Lecturer"
 msgstr ""
 
-#: ../Finances.py:63
+#: ../Finances.py:90
 msgid "Scientific Staff"
 msgstr ""
 
-#: ../Finances.py:64
+#: ../Finances.py:91
 msgid "Research Assistant"
 msgstr ""
 
-#: ../Finances.py:71
+#: ../Finances.py:98
 msgid "Actions"
 msgstr ""
 
-#: ../Finances.py:116
+#: ../Finances.py:143
 msgid "Add"
 msgstr ""
 
-#: ../Finances.py:127
+#: ../Finances.py:154
 #, python-brace-format
 msgid "{col} Filter"
 msgstr ""

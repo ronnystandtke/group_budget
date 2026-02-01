@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-01 21:47+0100\n"
+"POT-Creation-Date: 2026-02-01 23:04+0100\n"
 "PO-Revision-Date: 2026-01-31 18:51+0100\n"
 "Last-Translator: Ronny Standtke <ronny.standtke@gmx.net>\n"
 "Language-Team: German <de@li.org>\n"
@@ -24,67 +24,79 @@ msgstr "Öffnen"
 msgid "Save"
 msgstr "Speichern"
 
-#: ../Finances.py:36
+#: ../Finances.py:44
 msgid "Total Budget (CHF):"
 msgstr "Gesamtbudget (CHF)"
 
 #: ../Finances.py:50
-msgid "Name"
-msgstr ""
-
-#: ../Finances.py:51
-msgid "Role"
-msgstr "Rolle"
-
-#: ../Finances.py:52
-msgid "Hourly Rate (CHF)"
-msgstr "Stundensatz"
-
-#: ../Finances.py:53
-msgid "Employment (%)"
-msgstr "Beschäftigungsgrad (%)"
-
-#: ../Finances.py:54
-msgid "Research (%)"
-msgstr "Forschung (%)"
-
-#: ../Finances.py:55
-msgid "Acquisition (h)"
-msgstr "Akquise (h)"
-
-#: ../Finances.py:56
-msgid "Acquisition Cost (CHF)"
+msgid "Acquisition Costs (CHF):"
 msgstr "Akquisekosten (CHF)"
 
-#: ../Finances.py:57
-msgid "Administration (h)"
-msgstr ""
-
-#: ../Finances.py:58
-msgid "Administration Cost (CHF)"
+#: ../Finances.py:56
+msgid "Administative Costs (CHF):"
 msgstr "Administrationskosten (CHF)"
 
 #: ../Finances.py:62
+msgid "Remaining Budget (CHF):"
+msgstr "Verbleibendes Budget (CHF)"
+
+#: ../Finances.py:77
+msgid "Name"
+msgstr ""
+
+#: ../Finances.py:78
+msgid "Role"
+msgstr "Rolle"
+
+#: ../Finances.py:79
+msgid "Hourly Rate (CHF)"
+msgstr "Stundensatz"
+
+#: ../Finances.py:80
+msgid "Employment (%)"
+msgstr "Beschäftigungsgrad (%)"
+
+#: ../Finances.py:81
+msgid "Research (%)"
+msgstr "Forschung (%)"
+
+#: ../Finances.py:82
+msgid "Acquisition (h)"
+msgstr "Akquise (h)"
+
+#: ../Finances.py:83
+msgid "Acquisition Cost (CHF)"
+msgstr "Akquisekosten (CHF)"
+
+#: ../Finances.py:84
+msgid "Administration (h)"
+msgstr ""
+
+#: ../Finances.py:85
+msgid "Administration Cost (CHF)"
+msgstr "Administrationskosten (CHF)"
+
+#: ../Finances.py:89
 msgid "Lecturer"
 msgstr "Dozent(in)"
 
-#: ../Finances.py:63
+#: ../Finances.py:90
 msgid "Scientific Staff"
 msgstr "WiMa"
 
-#: ../Finances.py:64
+#: ../Finances.py:91
 msgid "Research Assistant"
 msgstr "Assistent(in)"
 
-#: ../Finances.py:71
+#: ../Finances.py:98
 msgid "Actions"
 msgstr "Aktionen"
 
-#: ../Finances.py:116
+#: ../Finances.py:143
 msgid "Add"
 msgstr "Hinzufügen"
 
-#: ../Finances.py:127
+#: ../Finances.py:154
 #, python-brace-format
 msgid "{col} Filter"
 msgstr "{col} filtern"

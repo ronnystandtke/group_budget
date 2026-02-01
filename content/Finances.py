@@ -30,11 +30,38 @@ class Finances:
 
         self.save_button = widgets.Button(description="💾 " + _("Save"))
 
+        finances_description_width = "210px"
+        finances_widget_width = "400px"
+        finances_style = {'description_width': finances_description_width}
+        finances_layout = widgets.Layout(
+                width=finances_widget_width,
+                justify_content='flex-end',
+                text_align='right')
+
         self.total_budget = widgets.FloatText(
             value=0.0,
             step=0.05,
             description=_("Total Budget (CHF):"),
-            style={'description_width': 'initial'})
+            style=finances_style,
+            layout=finances_layout)
+
+        self.acquisition_expenses = widgets.FloatText(
+            disabled=True,
+            description=_("Acquisition Costs (CHF):"),
+            style=finances_style,
+            layout=finances_layout)
+
+        self.administrative_expenses = widgets.FloatText(
+            disabled=True,
+            description=_("Administative Costs (CHF):"),
+            style=finances_style,
+            layout=finances_layout)
+
+        self.remaining_budget = widgets.FloatText(
+            disabled=True,
+            description=_("Remaining Budget (CHF):"),
+            style=finances_style,
+            layout=widgets.Layout(width=finances_widget_width))
 
         self.NAME_KEY = "Name"
         self.ROLE_KEY = "Role"
@@ -42,9 +69,9 @@ class Finances:
         self.EMPLOYMENT_PERCENTAGE_KEY = "Employment (%)"
         self.RESEARCH_PERCENTAGE_KEY = "Research (%)"
         self.ACQUISITION_HOURS_KEY = "Acquisition (h)"
-        self.ACQUISITION_COST_KEY = "Acquisition Cost (CHF)"
+        self.ACQUISITION_COST_KEY = "Acquisition Costs (CHF)"
         self.ADMINISTRATION_HOURS_KEY = "Administration (h)"
-        self.ADMINISTRATION_COST_KEY = "Administration Cost (CHF)"
+        self.ADMINISTRATION_COST_KEY = "Administration Costs (CHF)"
 
         self.COLUMNS = {
             self.NAME_KEY: _("Name"),
@@ -81,7 +108,7 @@ class Finances:
             self.ACQUISITION_HOURS_KEY: "90px",
             self.ACQUISITION_COST_KEY: "150px",
             self.ADMINISTRATION_HOURS_KEY: "130px",
-            self.ADMINISTRATION_COST_KEY: "180px",
+            self.ADMINISTRATION_COST_KEY: "200px",
             self.ACTIONS: "100px"
         }
 
@@ -243,6 +270,11 @@ class Finances:
         row = self.df.loc[idx]
         value = self.compute_acquisition_cost(row)
         self.acquisition_cost_labels[idx].value = f"{value:,.2f}"
+        self.update_total_acquisition_expenses()
+
+    def update_total_acquisition_expenses(self):
+        total = self.df.apply(self.compute_acquisition_cost, axis=1).sum()
+        self.acquisition_expenses.value = total
 
     def compute_administration_cost(self, row):
         try:
@@ -259,6 +291,11 @@ class Finances:
         row = self.df.loc[idx]
         value = self.compute_administration_cost(row)
         self.administration_cost_labels[idx].value = f"{value:,.2f}"
+        self.update_total_administration_expenses()
+
+    def update_total_administration_expenses(self):
+        total = self.df.apply(self.compute_administration_cost, axis=1).sum()
+        self.administrative_expenses.value = total
 
     def add_row(self):
         try:
@@ -447,6 +484,9 @@ class Finances:
             else:
                 self.sort_buttons[col].description = "↕"
 
+        self.update_total_acquisition_expenses()
+        self.update_total_administration_expenses()
+
     def show(self):
 
         # invisible output for triggering download
@@ -492,6 +532,9 @@ class Finances:
         container = widgets.VBox([
             button_row,
             self.total_budget,
+            self.acquisition_expenses,
+            self.administrative_expenses,
+            self.remaining_budget,
             header_row,
             input_row,
             self.output])
