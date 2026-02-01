@@ -29,9 +29,14 @@ class Finances:
             "Role": _("Role")
             }
         # see https://en.wikipedia.org/wiki/List_of_academic_ranks
-        self.ROLES = [_("Lecturer"), _("Scientific Staff"),
-                      _("Research Assistant")]
-        self.DEFAULT_ROLE = self.ROLES[1]
+        self.ROLES = {
+            "Lecturer": _("Lecturer"),
+            "Scientific Staff": _("Scientific Staff"),
+            "Research Assistant": _("Research Assistant")
+            }
+        self.REVERSED_ROLES = {_(k): k for k in self.ROLES}
+
+        self.DEFAULT_ROLE = self.ROLES["Scientific Staff"]
 
         # predefined translations
         self.ACTIONS = _("Actions")
@@ -67,7 +72,7 @@ class Finances:
                     width=self.column_widths[list(self.COLUMNS.keys())[2]])),
 
             list(self.COLUMNS.keys())[3]: widgets.Dropdown(
-                options=self.ROLES, layout=widgets.Layout(
+                options=self.ROLES.values(), layout=widgets.Layout(
                     width=self.column_widths[list(self.COLUMNS.keys())[3]]))
         }
 
@@ -147,9 +152,14 @@ class Finances:
 
     def add_row(self):
         try:
+            new_row = {}
+            for col in self.COLUMNS.keys():
+                val = self.input_widgets[col].value
+                if col == list(self.COLUMNS.keys())[3]:
+                    # add untranslated role into dataframe
+                    val = self.REVERSED_ROLES.get(val, val)
+                new_row[col] = val
 
-            new_row = {col: self.input_widgets[col].value
-                       for col in self.COLUMNS.keys()}
             self.df = pd.concat(
                 [self.df, pd.DataFrame([new_row])],
                 ignore_index=True)
@@ -234,8 +244,10 @@ class Finances:
 
                 elif col == list(self.COLUMNS.keys())[3]:
                     cell = widgets.Dropdown(
-                        value=row[col], options=self.ROLES,
-                        layout=widgets.Layout(width=self.column_widths[col]))
+                        value=self.ROLES[row[col]],
+                        options=self.ROLES.values(),
+                        layout=widgets.Layout(width=self.column_widths[col])
+                    )
                 else:
                     cell = widgets.Text(
                         value=row[col],
@@ -243,9 +255,16 @@ class Finances:
 
                 def make_update_func(idx, col):
                     def update(change):
-                        self.df.at[idx, col] = change['new']
+                        new_value = change['new']
+                        if col == list(self.COLUMNS.keys())[3]:
+                            self.df.at[idx, col] = self.REVERSED_ROLES.get(
+                                new_value, new_value)
+                        else:
+                            self.df.at[idx, col] = new_value
                     return update
+
                 cell.observe(make_update_func(idx, col), names='value')
+
                 cells.append(cell)
 
             # delete button
