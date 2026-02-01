@@ -22,11 +22,14 @@ class Finances:
 
         self.save_button = widgets.Button(description="💾 " + _("Save"))
 
+        self.ROLE_KEY = "Role"
+
         self.COLUMNS = {
             "Name": _("Name"),
             "Employment (%)": _("Employment (%)"),
+            "Research (%)": _("Research (%)"),
             "Hourly Rate (CHF)": _("Hourly Rate (CHF)"),
-            "Role": _("Role")
+            self.ROLE_KEY: _("Role")
             }
         # see https://en.wikipedia.org/wiki/List_of_academic_ranks
         self.ROLES = {
@@ -46,8 +49,9 @@ class Finances:
         self.column_widths = {
             list(self.COLUMNS.keys())[0]: "150px",
             list(self.COLUMNS.keys())[1]: "250px",
-            list(self.COLUMNS.keys())[2]: "230px",
-            list(self.COLUMNS.keys())[3]: "150px",
+            list(self.COLUMNS.keys())[2]: "250px",
+            list(self.COLUMNS.keys())[3]: "230px",
+            list(self.COLUMNS.keys())[4]: "150px",
             self.ACTIONS: "100px"
         }
 
@@ -64,16 +68,21 @@ class Finances:
                 layout=widgets.Layout(
                     width=self.column_widths[list(self.COLUMNS.keys())[1]])),
 
-            list(self.COLUMNS.keys())[2]: widgets.Combobox(
+            list(self.COLUMNS.keys())[2]: widgets.FloatSlider(
+                min=0, max=100, step=5, value=100,
+                layout=widgets.Layout(
+                    width=self.column_widths[list(self.COLUMNS.keys())[2]])),
+
+            list(self.COLUMNS.keys())[3]: widgets.Combobox(
                 options=self.known_hourly_rates,
                 placeholder=_("Click or type for suggestions"),
                 ensure_option=False,
                 layout=widgets.Layout(
-                    width=self.column_widths[list(self.COLUMNS.keys())[2]])),
+                    width=self.column_widths[list(self.COLUMNS.keys())[3]])),
 
-            list(self.COLUMNS.keys())[3]: widgets.Dropdown(
+            list(self.COLUMNS.keys())[4]: widgets.Dropdown(
                 options=self.ROLES.values(), layout=widgets.Layout(
-                    width=self.column_widths[list(self.COLUMNS.keys())[3]]))
+                    width=self.column_widths[list(self.COLUMNS.keys())[4]]))
         }
 
         self.input_widgets[list(self.COLUMNS.keys())[2]].observe(
@@ -146,8 +155,9 @@ class Finances:
     def reset_input_widgets(self):
         self.input_widgets[list(self.COLUMNS.keys())[0]].value = ""
         self.input_widgets[list(self.COLUMNS.keys())[1]].value = 80
-        self.input_widgets[list(self.COLUMNS.keys())[2]].value = ""
-        self.input_widgets[list(self.COLUMNS.keys())[3]].value = (
+        self.input_widgets[list(self.COLUMNS.keys())[2]].value = 50
+        self.input_widgets[list(self.COLUMNS.keys())[3]].value = ""
+        self.input_widgets[list(self.COLUMNS.keys())[4]].value = (
             self.DEFAULT_ROLE)
 
     def add_row(self):
@@ -155,7 +165,7 @@ class Finances:
             new_row = {}
             for col in self.COLUMNS.keys():
                 val = self.input_widgets[col].value
-                if col == list(self.COLUMNS.keys())[3]:
+                if col == self.ROLE_KEY:
                     # add untranslated role into dataframe
                     val = self.REVERSED_ROLES.get(val, val)
                 new_row[col] = val
@@ -225,12 +235,13 @@ class Finances:
 
             for col in self.COLUMNS.keys():
 
-                if col == list(self.COLUMNS.keys())[1]:
+                if (col == list(self.COLUMNS.keys())[1] or
+                        col == list(self.COLUMNS.keys())[2]):
                     cell = widgets.FloatSlider(
                         value=row[col], min=0, max=100, step=5,
                         layout=widgets.Layout(width=self.column_widths[col]))
 
-                elif col == list(self.COLUMNS.keys())[2]:
+                elif col == list(self.COLUMNS.keys())[3]:
                     combobox = widgets.Combobox(
                         value=row[col],
                         options=self.known_hourly_rates,
@@ -238,11 +249,11 @@ class Finances:
                         ensure_option=False,
                         layout=widgets.Layout(
                             width=self.column_widths[
-                                list(self.COLUMNS.keys())[2]]))
+                                list(self.COLUMNS.keys())[3]]))
                     combobox.observe(self.validate_hourly_rate, names="value")
                     cell = combobox
 
-                elif col == list(self.COLUMNS.keys())[3]:
+                elif col == list(self.COLUMNS.keys())[4]:
                     cell = widgets.Dropdown(
                         value=self.ROLES[row[col]],
                         options=self.ROLES.values(),
