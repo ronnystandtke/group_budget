@@ -35,6 +35,8 @@ class Finances:
 
         self.sort_states = {column: None for column in self.COLUMNS}
 
+        self.known_hourly_rates = ["55", "69", "87", "89", "103", "117"]
+
         self.input_widgets = {
             self.COLUMNS[0]: widgets.Text(layout=widgets.Layout(
                 width=self.column_widths[self.COLUMNS[0]])),
@@ -44,8 +46,12 @@ class Finances:
                 layout=widgets.Layout(
                     width=self.column_widths[self.COLUMNS[1]])),
 
-            self.COLUMNS[2]: widgets.FloatText(value=0, layout=widgets.Layout(
-                width=self.column_widths[self.COLUMNS[2]])),
+            self.COLUMNS[2]: widgets.Combobox(
+                options=self.known_hourly_rates,
+                placeholder=_("Click or type for suggestions"),
+                ensure_option=False,
+                layout=widgets.Layout(
+                    width=self.column_widths[self.COLUMNS[2]])),
 
             self.COLUMNS[3]: widgets.Dropdown(
                 options=self.ROLES, layout=widgets.Layout(
@@ -155,14 +161,21 @@ class Finances:
             cells = []
 
             for col in self.COLUMNS:
+
                 if col == self.COLUMNS[1]:
                     cell = widgets.FloatSlider(
                         value=row[col], min=0, max=100, step=5,
                         layout=widgets.Layout(width=self.column_widths[col]))
+
                 elif col == self.COLUMNS[2]:
-                    cell = widgets.FloatText(
+                    cell = widgets.Combobox(
                         value=row[col],
-                        layout=widgets.Layout(width=self.column_widths[col]))
+                        options=self.known_hourly_rates,
+                        placeholder=_("Click or type for suggestions"),
+                        ensure_option=False,
+                        layout=widgets.Layout(
+                            width=self.column_widths[self.COLUMNS[2]]))
+
                 elif col == self.COLUMNS[3]:
                     cell = widgets.Dropdown(
                         value=row[col], options=self.ROLES,
