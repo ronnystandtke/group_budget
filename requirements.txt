@@ -42,3 +42,11 @@ ipyleaflet
 # Python: plotting libraries (optional)
 plotly>=6,<7
 bqplot
+
+############################
+# project specific modules #
+############################
+jupyterlab-language-pack-de-DE
+pandas
+# jinja2 is an optional dependency of pandas for DataFrame.style
+jinja2

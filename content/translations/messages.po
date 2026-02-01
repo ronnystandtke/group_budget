@@ -1,0 +1,77 @@
+# Fachgruppenfinanzen
+# Copyright (C) 2026
+# This file is distributed under the same license as the Fachgruppenfinanzen package.
+# Ronny Standtke <ronny.standtke@gmx.net>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: 0.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-01-31 18:51+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../Finances.py:16
+msgid "Name"
+msgstr ""
+
+#: ../Finances.py:16
+msgid "Employment (%)"
+msgstr ""
+
+#: ../Finances.py:17
+msgid "Hourly Rate (CHF)"
+msgstr ""
+
+#: ../Finances.py:17
+msgid "Role"
+msgstr ""
+
+#: ../Finances.py:19
+msgid "Lecturer"
+msgstr ""
+
+#: ../Finances.py:19
+msgid "Scientific Staff"
+msgstr ""
+
+#: ../Finances.py:20
+msgid "Research Assistant"
+msgstr ""
+
+#: ../Finances.py:24
+msgid "Actions"
+msgstr ""
+
+#: ../Finances.py:57
+msgid "Add"
+msgstr ""
+
+#: ../Finances.py:66
+#, python-brace-format
+msgid "{col} Filter"
+msgstr ""
+
+#: ../temp.py:31
+msgid ""
+"\n"
+"                <h1>Startup failed</h1>\n"
+"                The startup of this notebook has failed. A known cause for "
+"this\n"
+"                error is starting the notebook in Firefox in private mode.\n"
+"                Please try again in a new Firefox window in normal mode. "
+"More\n"
+"                background information about this problem can be found "
+"here:\n"
+"                <br>\n"
+"                <a href=\"https://jupyterlite.readthedocs.io/en/latest/howto/"
+"configure/advanced/service-worker.html\" target=\"_blank\">\n"
+"                https://jupyterlite.readthedocs.io/en/latest/howto/configure/"
+"advanced/service-worker.html</a>\n"
+"                "
+msgstr ""
