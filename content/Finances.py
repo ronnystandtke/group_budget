@@ -1,8 +1,9 @@
 from IPython.display import display, HTML, clear_output
+import base64
 import gettext
 import io
-import base64
 import ipywidgets as widgets
+import json
 import pandas as pd
 import traceback
 
@@ -16,11 +17,21 @@ class Finances:
 
     def __init__(self) -> None:
 
+        # keys for our file
+        self.TOTAL_BUDGET_KEY = "total_budget"
+        self.EMPLOYEES_KEY = "employees"
+
         self.upload_button = widgets.FileUpload(
             description=_("Open"), accept=".json", multiple=False)
         self.upload_button.observe(self.load_data, names="value")
 
         self.save_button = widgets.Button(description="💾 " + _("Save"))
+
+        self.total_budget = widgets.FloatText(
+            value=0.0,
+            step=0.05,
+            description=_("Total Budget (CHF):"),
+            style={'description_width': 'initial'})
 
         self.ROLE_KEY = "Role"
 
@@ -128,7 +139,10 @@ class Finances:
     def load_data(self, change):
         try:
             content = self.upload_button.value[0]["content"]
-            self.df = pd.read_json(io.BytesIO(content), orient="records")
+            json_str = bytes(content).decode('utf-8')
+            json_data = json.loads(json_str)
+            self.total_budget.value = json_data[self.TOTAL_BUDGET_KEY]
+            self.df = pd.DataFrame(json_data[self.EMPLOYEES_KEY])
             self.refresh_table()
         except Exception:
             print(traceback.format_exc())
@@ -136,7 +150,11 @@ class Finances:
                 print(traceback.format_exc())
 
     def save_data(self):
-        json_str = self.df.to_json(orient="records", indent=2)
+        data_to_export = {
+            self.TOTAL_BUDGET_KEY: self.total_budget.value,
+            self.EMPLOYEES_KEY: self.df.to_dict(orient='records')
+        }
+        json_str = json.dumps(data_to_export, indent=2)
         b64 = base64.b64encode(json_str.encode()).decode()
         html = f"""
         <a id="download-link"
@@ -343,8 +361,12 @@ class Finances:
                 border="1px solid lightblue", padding=input_padding))
 
         # --- outer container ---
-        container = widgets.VBox(
-            [button_row, header_row, input_row, self.output])
+        container = widgets.VBox([
+            button_row,
+            self.total_budget,
+            header_row,
+            input_row,
+            self.output])
         container.layout.padding = "0px"
 
         # --- display program ---

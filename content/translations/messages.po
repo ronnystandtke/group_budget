@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-01 15:45+0100\n"
+"POT-Creation-Date: 2026-02-01 16:59+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,59 +17,63 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../Finances.py:20
+#: ../Finances.py:25
 msgid "Open"
 msgstr ""
 
-#: ../Finances.py:23
+#: ../Finances.py:28
 msgid "Save"
 msgstr ""
 
-#: ../Finances.py:28
+#: ../Finances.py:33
+msgid "Total Budget (CHF):"
+msgstr ""
+
+#: ../Finances.py:39
 msgid "Name"
 msgstr ""
 
-#: ../Finances.py:29
-msgid "Employment (%)"
-msgstr ""
-
-#: ../Finances.py:30
-msgid "Research (%)"
-msgstr ""
-
-#: ../Finances.py:31
-msgid "Hourly Rate (CHF)"
-msgstr ""
-
-#: ../Finances.py:32
+#: ../Finances.py:40
 msgid "Role"
 msgstr ""
 
-#: ../Finances.py:36
+#: ../Finances.py:41
+msgid "Hourly Rate (CHF)"
+msgstr ""
+
+#: ../Finances.py:42
+msgid "Employment (%)"
+msgstr ""
+
+#: ../Finances.py:43
+msgid "Research (%)"
+msgstr ""
+
+#: ../Finances.py:47
 msgid "Lecturer"
 msgstr ""
 
-#: ../Finances.py:37
+#: ../Finances.py:48
 msgid "Scientific Staff"
 msgstr ""
 
-#: ../Finances.py:38
+#: ../Finances.py:49
 msgid "Research Assistant"
 msgstr ""
 
-#: ../Finances.py:45
+#: ../Finances.py:56
 msgid "Actions"
 msgstr ""
 
-#: ../Finances.py:78 ../Finances.py:249
+#: ../Finances.py:83 ../Finances.py:266
 msgid "Click or type for suggestions"
 msgstr ""
 
-#: ../Finances.py:94
+#: ../Finances.py:105
 msgid "Add"
 msgstr ""
 
-#: ../Finances.py:103
+#: ../Finances.py:114
 #, python-brace-format
 msgid "{col} Filter"
 msgstr ""
