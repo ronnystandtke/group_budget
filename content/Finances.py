@@ -16,6 +16,10 @@ class Finances:
 
     def __init__(self) -> None:
 
+        # global constants
+        self.ANNUAL_WORKING_HOURS = 1940  # hours
+        self.ADMINISTRATION_FACTOR = 0.02
+
         # keys for our file
         self.TOTAL_BUDGET_KEY = "total_budget"
         self.EMPLOYEES_KEY = "employees"
@@ -39,6 +43,8 @@ class Finances:
         self.RESEARCH_PERCENTAGE_KEY = "Research (%)"
         self.ACQUISITION_HOURS_KEY = "Acquisition (h)"
         self.ACQUISITION_COST_KEY = "Acquisition Cost (CHF)"
+        self.ADMINISTRATION_HOURS_KEY = "Administration (h)"
+        self.ADMINISTRATION_COST_KEY = "Administration Cost (CHF)"
 
         self.COLUMNS = {
             self.NAME_KEY: _("Name"),
@@ -47,7 +53,9 @@ class Finances:
             self.EMPLOYMENT_PERCENTAGE_KEY: _("Employment (%)"),
             self.RESEARCH_PERCENTAGE_KEY: _("Research (%)"),
             self.ACQUISITION_HOURS_KEY: _("Acquisition (h)"),
-            self.ACQUISITION_COST_KEY: _("Acquisition Cost (CHF)")
+            self.ACQUISITION_COST_KEY: _("Acquisition Cost (CHF)"),
+            self.ADMINISTRATION_HOURS_KEY: _("Administration (h)"),
+            self.ADMINISTRATION_COST_KEY: _("Administration Cost (CHF)")
             }
         # see https://en.wikipedia.org/wiki/List_of_academic_ranks
         self.ROLES = {
@@ -72,6 +80,8 @@ class Finances:
             self.RESEARCH_PERCENTAGE_KEY: "210px",
             self.ACQUISITION_HOURS_KEY: "90px",
             self.ACQUISITION_COST_KEY: "150px",
+            self.ADMINISTRATION_HOURS_KEY: "130px",
+            self.ADMINISTRATION_COST_KEY: "180px",
             self.ACTIONS: "100px"
         }
 
@@ -91,9 +101,13 @@ class Finances:
             self.RESEARCH_PERCENTAGE_KEY:
                 self.get_float_slider(0, self.RESEARCH_PERCENTAGE_KEY),
             self.ACQUISITION_HOURS_KEY:
-                self.get_acquisition_hours_floattext(0),
+                self.get_floattext(0, self.ACQUISITION_HOURS_KEY),
             self.ACQUISITION_COST_KEY:
-                self.get_acquisition_cost_label("")
+                self.get_cost_label("", self.ACQUISITION_COST_KEY),
+            self.ADMINISTRATION_HOURS_KEY:
+                self.get_cost_label("", self.ADMINISTRATION_HOURS_KEY),
+            self.ADMINISTRATION_COST_KEY:
+                self.get_cost_label("", self.ADMINISTRATION_COST_KEY)
         }
 
         self.reset_input_widgets()
@@ -106,6 +120,7 @@ class Finances:
         self.sort_buttons = {}
         self.filter_widgets = {}
         self.acquisition_cost_labels = {}
+        self.administration_cost_labels = {}
 
         for col in self.COLUMNS.keys():
             self.filter_widgets[col] = widgets.Text(
@@ -158,18 +173,18 @@ class Finances:
             layout=widgets.Layout(
                 width=self.column_widths[width_key]))
 
-    def get_acquisition_hours_floattext(self, value):
+    def get_floattext(self, value, width_key):
         return widgets.FloatText(
-            value=value, step=0.05, layout=widgets.Layout(
-                width=self.column_widths[self.ACQUISITION_HOURS_KEY]))
+            value=value, step=1, layout=widgets.Layout(
+                width=self.column_widths[width_key]))
 
-    def get_acquisition_cost_label(self, value):
+    def get_cost_label(self, value, width_key):
         return widgets.Label(
             value=value,
             layout=widgets.Layout(
                 display="flex",
                 justify_content="flex-end",
-                width=self.column_widths[self.ACQUISITION_COST_KEY]))
+                width=self.column_widths[width_key]))
 
     def load_data(self, change):
         try:
@@ -216,32 +231,53 @@ class Finances:
     def compute_acquisition_cost(self, row):
         try:
             hourly_rate = float(row[self.HOURLY_RATE_KEY])
-            print("hourly_rate", hourly_rate)
             acquisition_hours = float(row[self.ACQUISITION_HOURS_KEY])
-            print("acquisition_hours", acquisition_hours)
             return hourly_rate * acquisition_hours
         except Exception:
             return 0.0
 
     def update_acquisition_cost_label(self, idx):
-        print("update_acquisition_cost_label", idx)
         if idx not in self.acquisition_cost_labels:
             return
 
         row = self.df.loc[idx]
-        print("row", row)
         value = self.compute_acquisition_cost(row)
-        print("value", value)
         self.acquisition_cost_labels[idx].value = f"{value:,.2f}"
+
+    def compute_administration_cost(self, row):
+        try:
+            hourly_rate = float(row[self.HOURLY_RATE_KEY])
+            administration_hours = float(row[self.ADMINISTRATION_HOURS_KEY])
+            return hourly_rate * administration_hours
+        except Exception:
+            return 0.0
+
+    def update_administration_cost_label(self, idx):
+        if idx not in self.administration_cost_labels:
+            return
+
+        row = self.df.loc[idx]
+        value = self.compute_administration_cost(row)
+        self.administration_cost_labels[idx].value = f"{value:,.2f}"
 
     def add_row(self):
         try:
             new_row = {}
+
             for col in self.COLUMNS.keys():
+
                 val = self.input_widgets[col].value
+
                 if col == self.ROLE_KEY:
                     # add untranslated role into dataframe
                     val = self.REVERSED_ROLES.get(val, val)
+
+                if col == self.ADMINISTRATION_HOURS_KEY:
+                    employment_percentage = self.input_widgets[
+                        self.EMPLOYMENT_PERCENTAGE_KEY].value
+                    val = (self.ANNUAL_WORKING_HOURS * employment_percentage *
+                           self.ADMINISTRATION_FACTOR / 100)
+
                 new_row[col] = val
 
             self.df = pd.concat(
@@ -303,12 +339,23 @@ class Finances:
                 row[col], self.EMPLOYMENT_PERCENTAGE_KEY)
 
         elif col == self.ACQUISITION_HOURS_KEY:
-            cell = self.get_acquisition_hours_floattext(row[col])
+            cell = self.get_floattext(row[col], self.ACQUISITION_HOURS_KEY)
 
         elif col == self.ACQUISITION_COST_KEY:
             value = self.compute_acquisition_cost(row)
-            cell = self.get_acquisition_cost_label(f"{value:,.2f}")
+            cell = self.get_cost_label(
+                f"{value:,.2f}", self.ACQUISITION_COST_KEY)
             self.acquisition_cost_labels[idx] = cell
+
+        elif col == self.ADMINISTRATION_HOURS_KEY:
+            cell = self.get_cost_label(
+                str(row[col]), self.ADMINISTRATION_HOURS_KEY)
+
+        elif col == self.ADMINISTRATION_COST_KEY:
+            value = self.compute_administration_cost(row)
+            cell = self.get_cost_label(
+                f"{value:,.2f}", self.ADMINISTRATION_COST_KEY)
+            self.administration_cost_labels[idx] = cell
 
         else:
             print("Warning: unhandled col", col)
@@ -339,8 +386,13 @@ class Finances:
                 self.df.at[idx, col] = new_value
 
                 # update AFTER setting the new value!
-                if col in (self.HOURLY_RATE_KEY, self.ACQUISITION_HOURS_KEY):
+                if col in (self.HOURLY_RATE_KEY,
+                           self.ACQUISITION_HOURS_KEY):
                     self.update_acquisition_cost_label(idx)
+
+                if col in (self.HOURLY_RATE_KEY,
+                           self.ADMINISTRATION_HOURS_KEY):
+                    self.update_administration_cost_label(idx)
 
             return update
 
