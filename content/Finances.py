@@ -84,6 +84,7 @@ class Finances:
             self.ADMINISTRATION_HOURS_KEY: _("Administration (h)"),
             self.ADMINISTRATION_COST_KEY: _("Administration Cost (CHF)")
             }
+
         # see https://en.wikipedia.org/wiki/List_of_academic_ranks
         self.ROLES = {
             "Lecturer": _("Lecturer"),
@@ -148,6 +149,7 @@ class Finances:
         self.filter_widgets = {}
         self.acquisition_cost_labels = {}
         self.administration_cost_labels = {}
+        self.administration_hours_labels = {}
 
         for col in self.COLUMNS.keys():
             self.filter_widgets[col] = widgets.Text(
@@ -297,6 +299,13 @@ class Finances:
         total = self.df.apply(self.compute_administration_cost, axis=1).sum()
         self.administrative_expenses.value = total
 
+    def compute_administration_hours(self, employment_percentage):
+        return (
+            self.ANNUAL_WORKING_HOURS *
+            employment_percentage *
+            self.ADMINISTRATION_FACTOR / 100
+        )
+
     def add_row(self):
         try:
             new_row = {}
@@ -344,13 +353,34 @@ class Finances:
             val = self.filter_widgets[col].value
             if val:
                 temp = temp[
-                    temp[col].astype(str).str.contains(val, case=False)]
+                    temp[col].astype(str).str.contains(val, case=False)
+                ]
 
         for col, asc in self.sort_states.items():
             if asc is not None:
-                temp = temp.sort_values(col, ascending=asc)
 
-        return temp.reset_index(drop=True)
+                if col in (self.HOURLY_RATE_KEY,
+                           self.ADMINISTRATION_HOURS_KEY):
+                    temp = temp.sort_values(
+                        col,
+                        ascending=asc,
+                        key=lambda s: pd.to_numeric(s, errors="coerce")
+                    )
+
+                elif col == self.ACQUISITION_COST_KEY:
+                    costs = temp.apply(
+                        self.compute_acquisition_cost, axis=1)
+                    temp = temp.loc[costs.sort_values(ascending=asc).index]
+
+                elif col == self.ADMINISTRATION_COST_KEY:
+                    costs = temp.apply(
+                        self.compute_administration_cost, axis=1)
+                    temp = temp.loc[costs.sort_values(ascending=asc).index]
+
+                else:
+                    temp = temp.sort_values(col, ascending=asc)
+
+        return temp
 
     def delete_row(self, idx):
         self.df = self.df.drop(index=idx).reset_index(drop=True)
@@ -385,8 +415,13 @@ class Finances:
             self.acquisition_cost_labels[idx] = cell
 
         elif col == self.ADMINISTRATION_HOURS_KEY:
-            cell = self.get_cost_label(
-                str(row[col]), self.ADMINISTRATION_HOURS_KEY)
+            try:
+                value = float(row[col])
+                text = f"{value:.2f}"
+            except Exception:
+                text = "0.00"
+            cell = self.get_cost_label(text, self.ADMINISTRATION_HOURS_KEY)
+            self.administration_hours_labels[idx] = cell
 
         elif col == self.ADMINISTRATION_COST_KEY:
             value = self.compute_administration_cost(row)
@@ -400,6 +435,10 @@ class Finances:
         def make_update_func(idx, col):
 
             def update(change):
+
+                print("idx", idx)
+                print("col", col)
+                print("change", change)
 
                 new_value = change['new']
 
@@ -421,6 +460,15 @@ class Finances:
                         return
 
                 self.df.at[idx, col] = new_value
+
+                if col == self.EMPLOYMENT_PERCENTAGE_KEY:
+                    admin_hours = self.compute_administration_hours(new_value)
+                    key = self.ADMINISTRATION_HOURS_KEY
+                    self.df.at[idx, key] = admin_hours
+                    if idx in self.administration_hours_labels:
+                        self.administration_hours_labels[idx].value = (
+                            f"{admin_hours:.2f}")
+                    self.update_administration_cost_label(idx)
 
                 # update AFTER setting the new value!
                 if col in (self.HOURLY_RATE_KEY,
@@ -454,7 +502,7 @@ class Finances:
             header_widgets, layout=widgets.Layout(padding="5px")))
 
         # --- data lines ---
-        for i, (idx, row) in enumerate(filtered.iterrows()):
+        for idx, row in filtered.iterrows():
             cells = []
 
             for col in self.COLUMNS.keys():
