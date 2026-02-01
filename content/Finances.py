@@ -1,5 +1,6 @@
-from IPython.display import display
+from IPython.display import display, HTML, clear_output
 import gettext
+import base64
 import ipywidgets as widgets
 import pandas as pd
 import traceback
@@ -13,6 +14,13 @@ _ = gettext.gettext
 class Finances:
 
     def __init__(self) -> None:
+
+        self.upload_button = widgets.FileUpload(
+            description=_("Open"), accept=".json", multiple=False)
+        self.upload_button.observe(self.load_data, names="value")
+
+        self.save_button = widgets.Button(description="💾 " + _("Save"))
+
         self.COLUMNS = [_("Name"), _("Employment (%)"),
                         _("Hourly Rate (CHF)"), _("Role")]
         # see https://en.wikipedia.org/wiki/List_of_academic_ranks
@@ -28,7 +36,7 @@ class Finances:
         self.column_widths = {
             self.COLUMNS[0]: "150px",
             self.COLUMNS[1]: "250px",
-            self.COLUMNS[2]: "200px",
+            self.COLUMNS[2]: "230px",
             self.COLUMNS[3]: "150px",
             self.ACTIONS: "100px"
         }
@@ -88,7 +96,6 @@ class Finances:
 
         self.output = widgets.Output(layout=widgets.Layout(
             border="1px solid lightgray",
-            height="400px",
             overflow_y="auto",
             padding="0px",
             margin="0px",
@@ -98,6 +105,28 @@ class Finances:
         self.output_inner = widgets.VBox(layout=widgets.Layout(padding="5px"))
         with self.output:
             display(self.output_inner)
+
+    def load_data(self, change):
+        content = next(iter(self.upload_button.value.values()))["content"]
+        self.df = pd.read_json(content, orient="records")
+        self.refresh_table()
+
+    def save_data(self):
+        json_str = self.df.to_json(orient="records", indent=2)
+        b64 = base64.b64encode(json_str.encode()).decode()
+        html = f"""
+        <a id="download-link"
+           download="data.json"
+           href="data:text/json;base64,{b64}"
+           style="display:none;">
+        </a>
+        <script>
+            document.getElementById('download-link').click();
+        </script>
+        """
+        with self.download_output:
+            clear_output()
+            display(HTML(html))
 
     def reset_input_widgets(self):
         self.input_widgets[self.COLUMNS[0]].value = ""
@@ -215,7 +244,7 @@ class Finances:
             cells.append(btn)
 
             row_boxes.append(widgets.HBox(
-                cells, layout=widgets.Layout(padding="5px")))
+                cells, layout=widgets.Layout(padding="0px 5px")))
 
         # --- Alles in output_inner anzeigen ---
         self.output_inner.children = row_boxes
@@ -231,7 +260,16 @@ class Finances:
                 self.sort_buttons[col].description = "↕"
 
     def show(self):
-        # --- Header für Spaltennamen ---
+
+        # invisible output for triggering download
+        self.download_output = widgets.Output()
+
+        # load and save buttons
+        button_row = widgets.HBox(
+            [self.upload_button, self.save_button, self.download_output],
+            layout=widgets.Layout(padding="5px"))
+
+        # --- column name header ---
         # output border + output padding + padding in text fields
         header_padding = "0px " + str(1 + 5 + 8) + "px"
         header_labels = [
@@ -254,7 +292,7 @@ class Finances:
         header_row = widgets.HBox(
             header_labels, layout=widgets.Layout(padding="5px"))
 
-        # --- Eingabezeile ---
+        # --- input row ---
         # output padding + container padding
         input_padding = "5px " + str(5 + 5) + "px"
         input_row = widgets.HBox(
@@ -262,10 +300,11 @@ class Finances:
             layout=widgets.Layout(
                 border="1px solid lightblue", padding=input_padding))
 
-        # --- Einheitlicher äußerer Container ---
-        container = widgets.VBox([header_row, input_row, self.output])
+        # --- outer container ---
+        container = widgets.VBox(
+            [button_row, header_row, input_row, self.output])
         container.layout.padding = "0px"
 
-        # --- Anzeige ---
+        # --- display program ---
         display(container)
         self.refresh_table()
