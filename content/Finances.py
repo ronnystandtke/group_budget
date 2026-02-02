@@ -1,3 +1,4 @@
+from Calculations import Calculations
 from IPython.display import display, HTML, clear_output
 import base64
 import gettext
@@ -16,9 +17,7 @@ class Finances:
 
     def __init__(self) -> None:
 
-        # global constants
-        self.ANNUAL_WORKING_HOURS = 1940  # hours
-        self.ADMINISTRATION_FACTOR = 0.02
+        self.calculations = Calculations()
 
         # keys for our file
         self.TOTAL_BUDGET_KEY = "total_budget"
@@ -115,8 +114,6 @@ class Finances:
 
         self.sort_states = {column: None for column in self.COLUMNS.keys()}
 
-        self.known_hourly_rates = ["55", "69", "87", "89", "103", "117"]
-
         self.input_widgets = {
             self.NAME_KEY:
                 self.get_name_text(""),
@@ -191,7 +188,7 @@ class Finances:
     def get_hourly_rate_combobox(self, value):
         return widgets.Combobox(
             value=value,
-            options=self.known_hourly_rates,
+            options=self.calculations.known_hourly_rates,
             ensure_option=False,
             layout=widgets.Layout(
                 width=self.column_widths[self.HOURLY_RATE_KEY]))
@@ -264,12 +261,14 @@ class Finances:
         self.input_widgets[self.ACQUISITION_HOURS_KEY].value = 0
 
     def compute_acquisition_cost(self, row):
-        try:
-            hourly_rate = float(row[self.HOURLY_RATE_KEY])
-            acquisition_hours = float(row[self.ACQUISITION_HOURS_KEY])
-            return hourly_rate * acquisition_hours
-        except Exception:
-            return 0.0
+        hourly_rate = float(row[self.HOURLY_RATE_KEY])
+        acquisition_hours = float(row[self.ACQUISITION_HOURS_KEY])
+        return self.calculations.get_costs(hourly_rate, acquisition_hours)
+
+    def compute_administration_cost(self, row):
+        hourly_rate = float(row[self.HOURLY_RATE_KEY])
+        administration_hours = float(row[self.ADMINISTRATION_HOURS_KEY])
+        return self.calculations.get_costs(hourly_rate, administration_hours)
 
     def update_acquisition_cost_label(self, idx):
         if idx not in self.acquisition_cost_labels:
@@ -280,18 +279,6 @@ class Finances:
         self.acquisition_cost_labels[idx].value = f"{value:,.2f}"
         self.update_total_acquisition_expenses()
 
-    def update_total_acquisition_expenses(self):
-        total = self.df.apply(self.compute_acquisition_cost, axis=1).sum()
-        self.acquisition_expenses.value = total
-
-    def compute_administration_cost(self, row):
-        try:
-            hourly_rate = float(row[self.HOURLY_RATE_KEY])
-            administration_hours = float(row[self.ADMINISTRATION_HOURS_KEY])
-            return hourly_rate * administration_hours
-        except Exception:
-            return 0.0
-
     def update_administration_cost_label(self, idx):
         if idx not in self.administration_cost_labels:
             return
@@ -301,16 +288,13 @@ class Finances:
         self.administration_cost_labels[idx].value = f"{value:,.2f}"
         self.update_total_administration_expenses()
 
+    def update_total_acquisition_expenses(self):
+        total = self.df.apply(self.compute_acquisition_cost, axis=1).sum()
+        self.acquisition_expenses.value = total
+
     def update_total_administration_expenses(self):
         total = self.df.apply(self.compute_administration_cost, axis=1).sum()
         self.administrative_expenses.value = total
-
-    def compute_administration_hours(self, employment_percentage):
-        return (
-            self.ANNUAL_WORKING_HOURS *
-            employment_percentage *
-            self.ADMINISTRATION_FACTOR / 100
-        )
 
     def add_row(self):
         try:
@@ -327,8 +311,8 @@ class Finances:
                 if col == self.ADMINISTRATION_HOURS_KEY:
                     employment_percentage = self.input_widgets[
                         self.EMPLOYMENT_PERCENTAGE_KEY].value
-                    val = (self.ANNUAL_WORKING_HOURS * employment_percentage *
-                           self.ADMINISTRATION_FACTOR / 100)
+                    val = self.calculations.get_administration_hours(
+                        employment_percentage)
 
                 new_row[col] = val
 
@@ -464,7 +448,8 @@ class Finances:
                 self.df.at[idx, col] = new_value
 
                 if col == self.EMPLOYMENT_PERCENTAGE_KEY:
-                    admin_hours = self.compute_administration_hours(new_value)
+                    admin_hours = self.calculations.get_administration_hours(
+                        new_value)
                     key = self.ADMINISTRATION_HOURS_KEY
                     self.df.at[idx, key] = admin_hours
                     if idx in self.administration_hours_labels:
