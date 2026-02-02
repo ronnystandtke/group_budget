@@ -237,12 +237,16 @@ class Finances:
                 print(traceback.format_exc())
 
     def save_data(self):
+        sorted_df = self.sort_df(self.df)
+
         data_to_export = {
             self.TOTAL_BUDGET_KEY: self.total_budget.value,
-            self.EMPLOYEES_KEY: self.df.to_dict(orient='records')
+            self.EMPLOYEES_KEY: sorted_df.to_dict(orient='records')
         }
+
         json_str = json.dumps(data_to_export, indent=2)
         b64 = base64.b64encode(json_str.encode()).decode()
+
         html = f"""
         <a id="download-link"
            download="data.json"
@@ -253,6 +257,7 @@ class Finances:
             document.getElementById('download-link').click();
         </script>
         """
+
         with self.download_output:
             clear_output()
             display(HTML(html))
@@ -357,6 +362,11 @@ class Finances:
                 temp = temp[
                     temp[col].astype(str).str.contains(val, case=False)
                 ]
+
+        return self.sort_df(temp)
+
+    def sort_df(self, df):
+        temp = df.copy()
 
         for col, asc in self.sort_states.items():
             if asc is not None:
