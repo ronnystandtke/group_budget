@@ -116,15 +116,15 @@ class Finances:
             self.NAME_KEY: "150px",
             self.ROLE_KEY: "110px",
             self.HOURLY_RATE_KEY: "90px",
-            self.EMPLOYMENT_PERCENTAGE_KEY: "210px",
+            self.EMPLOYMENT_PERCENTAGE_KEY: "190px",
             self.ANNUAL_WORKING_HOURS_KEY: "55px",
-            self.RESEARCH_PERCENTAGE_KEY: "210px",
-            self.RESEARCH_HOURS_KEY: "110px",
+            self.RESEARCH_PERCENTAGE_KEY: "190px",
+            self.RESEARCH_HOURS_KEY: "100px",
             self.ACQUISITION_HOURS_KEY: "90px",
             self.ACQUISITION_COSTS_KEY: "70px",
-            self.ADMINISTRATION_HOURS_KEY: "130px",
-            self.ADMINISTRATION_COSTS_KEY: "130px",
-            self.PUBLIC_FUNDS_KEY: "130px",
+            self.ADMINISTRATION_HOURS_KEY: "120px",
+            self.ADMINISTRATION_COSTS_KEY: "120px",
+            self.PUBLIC_FUNDS_KEY: "120px",
             self.ACTIONS: "100px"
         }
 
@@ -224,9 +224,8 @@ class Finances:
 
     def get_float_slider(self, value, width_key):
         return widgets.FloatSlider(
-            min=0, max=100, step=1, value=value,
-            layout=widgets.Layout(
-                width=self.column_widths[width_key]))
+            min=0, max=100, step=1, readout_format=".0f", value=value,
+            layout=widgets.Layout(width=self.column_widths[width_key]))
 
     def get_floattext(self, value, width_key):
         return widgets.FloatText(
@@ -489,8 +488,6 @@ class Finances:
                     change.owner.value = change.old
                     return
 
-            self.df.at[idx, col] = new_value
-
             if col == self.EMPLOYMENT_PERCENTAGE_KEY:
 
                 annual_hours = (
@@ -527,6 +524,8 @@ class Finances:
                     self.research_hours_labels[idx].value = (
                         f"{research_hours:.2f}"
                     )
+
+            self.df.at[idx, col] = new_value
 
             # update AFTER setting the new value!
             if col in (self.HOURLY_RATE_KEY, self.ACQUISITION_HOURS_KEY):
@@ -712,8 +711,13 @@ class Finances:
             .compact-header {
                 --jp-widgets-inline-height: 18px;
             }
+            .jp-OutputArea .widget-readout {
+                width: 30px !important;
+                min-width: 30px !important;
+            }
         </style>
         """))
+
         # invisible output for triggering download
         self.download_output = widgets.Output()
 
