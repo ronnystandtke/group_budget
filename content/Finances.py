@@ -371,8 +371,18 @@ class Finances:
         for col, asc in self.sort_states.items():
             if asc is not None:
 
-                if col in (self.HOURLY_RATE_KEY,
-                           self.ADMINISTRATION_HOURS_KEY):
+                if col == self.ROLE_KEY:
+                    # sort by visible / translated role name
+                    temp = temp.sort_values(
+                        col,
+                        ascending=asc,
+                        key=lambda s: s.map(
+                            lambda r: self.ROLES.get(r, r)
+                        )
+                    )
+
+                elif col in (self.HOURLY_RATE_KEY,
+                             self.ADMINISTRATION_HOURS_KEY):
                     temp = temp.sort_values(
                         col,
                         ascending=asc,
