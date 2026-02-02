@@ -19,10 +19,6 @@ class Finances:
         self.calculations = Calculations()
         self.file_handler = FileHandler()
 
-        # keys for our file
-        self.TOTAL_BUDGET_KEY = "total_budget"
-        self.EMPLOYEES_KEY = "employees"
-
         self.upload_button = widgets.FileUpload(
             description=_("Open"), accept=".json", multiple=False)
         self.upload_button.observe(self.load_data, names="value")
@@ -72,23 +68,26 @@ class Finances:
         self.ROLE_KEY = "Role"
         self.HOURLY_RATE_KEY = "Hourly Rate (CHF)"
         self.EMPLOYMENT_PERCENTAGE_KEY = "Employment (%)"
+        self.ANNUAL_WORKING_HOURS_KEY = "Annual Working Hours (h)"
         self.RESEARCH_PERCENTAGE_KEY = "Research (%)"
         self.ACQUISITION_HOURS_KEY = "Acquisition (h)"
-        self.ACQUISITION_COSTS_KEY = "Acquisition Costs (CHF)"
+        self.ACQUISITION_COSTS_KEY = "Acquisition (CHF)"
         self.ADMINISTRATION_HOURS_KEY = "Administration (h)"
-        self.ADMINISTRATION_COSTS_KEY = "Administration Costs (CHF)"
+        self.ADMINISTRATION_COSTS_KEY = "Administration (CHF)"
 
         self.COLUMNS = {
             self.NAME_KEY: _("Name"),
             self.ROLE_KEY: _("Role"),
             self.HOURLY_RATE_KEY: _("Hourly<br>Rate<br>(CHF)"),
             self.EMPLOYMENT_PERCENTAGE_KEY: _("Employment<br>(%)"),
+            self.ANNUAL_WORKING_HOURS_KEY:
+                _("Annual<br>Working<br>Hours<br>(h)"),
             self.RESEARCH_PERCENTAGE_KEY: _("Research<br>(%)"),
             self.ACQUISITION_HOURS_KEY: _("Acquisition<br>(h)"),
-            self.ACQUISITION_COSTS_KEY: _("Acquisition<br>Costs<br>(CHF)"),
+            self.ACQUISITION_COSTS_KEY: _("Acquisition<br>(CHF)"),
             self.ADMINISTRATION_HOURS_KEY: _("Administration<br>(h)"),
             self.ADMINISTRATION_COSTS_KEY: (
-                _("Administration<br>Costs<br>(CHF)"))
+                _("Administration<br>(CHF)"))
             }
 
         # see https://en.wikipedia.org/wiki/List_of_academic_ranks
@@ -111,6 +110,7 @@ class Finances:
             self.ROLE_KEY: "110px",
             self.HOURLY_RATE_KEY: "90px",
             self.EMPLOYMENT_PERCENTAGE_KEY: "210px",
+            self.ANNUAL_WORKING_HOURS_KEY: "100px",
             self.RESEARCH_PERCENTAGE_KEY: "210px",
             self.ACQUISITION_HOURS_KEY: "90px",
             self.ACQUISITION_COSTS_KEY: "130px",
@@ -130,6 +130,8 @@ class Finances:
                 self.get_hourly_rate_combobox(""),
             self.EMPLOYMENT_PERCENTAGE_KEY:
                 self.get_float_slider(0, self.EMPLOYMENT_PERCENTAGE_KEY),
+            self.ANNUAL_WORKING_HOURS_KEY:
+                self.get_cost_label("", self.ANNUAL_WORKING_HOURS_KEY),
             self.RESEARCH_PERCENTAGE_KEY:
                 self.get_float_slider(0, self.RESEARCH_PERCENTAGE_KEY),
             self.ACQUISITION_HOURS_KEY:
@@ -152,9 +154,10 @@ class Finances:
 
         self.sort_buttons = {}
         self.filter_widgets = {}
+        self.annual_working_hours_labels = {}
         self.acquisition_cost_labels = {}
-        self.administration_cost_labels = {}
         self.administration_hours_labels = {}
+        self.administration_cost_labels = {}
 
         for col in self.COLUMNS.keys():
             self.filter_widgets[col] = widgets.Text(
@@ -306,6 +309,12 @@ class Finances:
                     # add untranslated role into dataframe
                     val = self.REVERSED_ROLES.get(val, val)
 
+                if col == self.ANNUAL_WORKING_HOURS_KEY:
+                    employment_percentage = self.input_widgets[
+                        self.EMPLOYMENT_PERCENTAGE_KEY].value
+                    val = self.calculations.get_annual_working_hours(
+                        employment_percentage)
+
                 if col == self.ADMINISTRATION_HOURS_KEY:
                     employment_percentage = self.input_widgets[
                         self.EMPLOYMENT_PERCENTAGE_KEY].value
@@ -389,6 +398,55 @@ class Finances:
         self.df = self.df.drop(index=idx)
         self.refresh_table()
 
+    def handle_cell_update(self, idx, col, change):
+        new_value = change['new']
+
+        if col == self.ROLE_KEY:
+            self.df.at[idx, col] = self.REVERSED_ROLES.get(
+                new_value, new_value)
+            return
+
+        if col == self.HOURLY_RATE_KEY:
+            try:
+                # if there is any text
+                # it must be possible to convert to int
+                if change["new"]:
+                    int(change["new"])
+            except ValueError:
+                # if the new value can't be converted to int
+                # revert the change
+                change.owner.value = change.old
+                return
+
+        self.df.at[idx, col] = new_value
+
+        if col == self.EMPLOYMENT_PERCENTAGE_KEY:
+
+            annual_hours = (
+                self.calculations.get_annual_working_hours(new_value))
+            key = self.ANNUAL_WORKING_HOURS_KEY
+            self.df.at[idx, key] = annual_hours
+            if idx in self.annual_working_hours_labels:
+                self.annual_working_hours_labels[idx].value = (
+                    f"{annual_hours:.2f}")
+
+            admin_hours = (
+                self.calculations.get_administration_hours(new_value))
+            key = self.ADMINISTRATION_HOURS_KEY
+            self.df.at[idx, key] = admin_hours
+            if idx in self.administration_hours_labels:
+                self.administration_hours_labels[idx].value = (
+                    f"{admin_hours:.2f}")
+
+            self.update_administration_costs_label(idx)
+
+        # update AFTER setting the new value!
+        if col in (self.HOURLY_RATE_KEY, self.ACQUISITION_HOURS_KEY):
+            self.update_acquisition_costs_label(idx)
+
+        if col in (self.HOURLY_RATE_KEY, self.ADMINISTRATION_HOURS_KEY):
+            self.update_administration_costs_label(idx)
+
     def get_cell(self, idx, row, col):
 
         if col == self.NAME_KEY:
@@ -399,6 +457,14 @@ class Finances:
 
         elif col == self.HOURLY_RATE_KEY:
             cell = self.get_hourly_rate_combobox(row[col])
+
+        elif col == self.ANNUAL_WORKING_HOURS_KEY:
+            employment = row[self.EMPLOYMENT_PERCENTAGE_KEY]
+            value = self.calculations.get_annual_working_hours(employment)
+            cell = self.get_cost_label(
+                f"{value:.2f}", self.ANNUAL_WORKING_HOURS_KEY
+            )
+            self.annual_working_hours_labels[idx] = cell
 
         elif col == self.RESEARCH_PERCENTAGE_KEY:
             cell = self.get_float_slider(
@@ -435,53 +501,10 @@ class Finances:
         else:
             print("Warning: unhandled col", col)
 
-        def make_update_func(idx, col):
+        cell.observe(
+            lambda change, i=idx, c=col:
+                self.handle_cell_update(i, c, change), names="value")
 
-            def update(change):
-
-                new_value = change['new']
-
-                if col == self.ROLE_KEY:
-                    self.df.at[idx, col] = self.REVERSED_ROLES.get(
-                        new_value, new_value)
-                    return
-
-                if col == self.HOURLY_RATE_KEY:
-                    try:
-                        # if there is any text
-                        # it must be possible to convert to int
-                        if change["new"]:
-                            int(change["new"])
-                    except ValueError:
-                        # if the new value can't be converted to int
-                        # revert the change
-                        change.owner.value = change.old
-                        return
-
-                self.df.at[idx, col] = new_value
-
-                if col == self.EMPLOYMENT_PERCENTAGE_KEY:
-                    admin_hours = self.calculations.get_administration_hours(
-                        new_value)
-                    key = self.ADMINISTRATION_HOURS_KEY
-                    self.df.at[idx, key] = admin_hours
-                    if idx in self.administration_hours_labels:
-                        self.administration_hours_labels[idx].value = (
-                            f"{admin_hours:.2f}")
-                    self.update_administration_costs_label(idx)
-
-                # update AFTER setting the new value!
-                if col in (self.HOURLY_RATE_KEY,
-                           self.ACQUISITION_HOURS_KEY):
-                    self.update_acquisition_costs_label(idx)
-
-                if col in (self.HOURLY_RATE_KEY,
-                           self.ADMINISTRATION_HOURS_KEY):
-                    self.update_administration_costs_label(idx)
-
-            return update
-
-        cell.observe(make_update_func(idx, col), names='value')
         return cell
 
     def refresh_table(self):

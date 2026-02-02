@@ -5,6 +5,9 @@ class Calculations:
         self.ADMINISTRATION_FACTOR = 0.02
         self.known_hourly_rates = ["55", "69", "87", "89", "103", "117"]
 
+    def get_annual_working_hours(self, employment_percentage):
+        return self.ANNUAL_WORKING_HOURS * employment_percentage / 100
+
     def get_administration_hours(self, employment_percentage):
         return (
             self.ANNUAL_WORKING_HOURS *
