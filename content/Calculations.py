@@ -17,11 +17,18 @@ class Calculations:
         return (self.get_annual_working_hours(employment_percentage) *
                 self.ADMINISTRATION_FACTOR)
 
-    def get_costs(self, hourly_rate, hours):
+    def get_float(self, value):
         try:
-            return float(hourly_rate) * float(hours)
+            return float(value)
         except Exception:
             return 0.0
+
+    def get_costs(self, hourly_rate, hours):
+        return self.get_float(hourly_rate) * self.get_float(hours)
+
+    def get_public_funds(self, acquisition_costs, administration_costs):
+        return (self.get_float(acquisition_costs) +
+                self.get_float(administration_costs))
 
     def get_remaining_budget(
             self, total_budget, acquisition_expenses, administrative_expenses):

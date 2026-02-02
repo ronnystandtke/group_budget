@@ -11,6 +11,9 @@ gettext.textdomain('finances')
 
 _ = gettext.gettext
 
+# fixing the order of the df:
+# finances.df = finances.df.reindex(columns=finances.COLUMNS.keys())
+
 
 class Finances:
 
@@ -75,6 +78,7 @@ class Finances:
         self.ACQUISITION_COSTS_KEY = "Acquisition (CHF)"
         self.ADMINISTRATION_HOURS_KEY = "Administration (h)"
         self.ADMINISTRATION_COSTS_KEY = "Administration (CHF)"
+        self.PUBLIC_FUNDS_KEY = "Public Funds (CHF)"
 
         self.COLUMNS = {
             self.NAME_KEY: _("Name"),
@@ -89,7 +93,8 @@ class Finances:
             self.ACQUISITION_COSTS_KEY: _("Acquisition<br>(CHF)"),
             self.ADMINISTRATION_HOURS_KEY: _("Administration<br>(h)"),
             self.ADMINISTRATION_COSTS_KEY: (
-                _("Administration<br>(CHF)"))
+                _("Administration<br>(CHF)")),
+            self.PUBLIC_FUNDS_KEY: _("Public<br>Funds<br>(CHF)")
             }
 
         # see https://en.wikipedia.org/wiki/List_of_academic_ranks
@@ -119,6 +124,7 @@ class Finances:
             self.ACQUISITION_COSTS_KEY: "70px",
             self.ADMINISTRATION_HOURS_KEY: "130px",
             self.ADMINISTRATION_COSTS_KEY: "130px",
+            self.PUBLIC_FUNDS_KEY: "130px",
             self.ACTIONS: "100px"
         }
 
@@ -146,8 +152,13 @@ class Finances:
             self.ADMINISTRATION_HOURS_KEY:
                 self.get_cost_label("", self.ADMINISTRATION_HOURS_KEY),
             self.ADMINISTRATION_COSTS_KEY:
-                self.get_cost_label("", self.ADMINISTRATION_COSTS_KEY)
+                self.get_cost_label("", self.ADMINISTRATION_COSTS_KEY),
+            self.PUBLIC_FUNDS_KEY:
+                self.get_cost_label("", self.PUBLIC_FUNDS_KEY)
         }
+
+        self.input_widgets[self.HOURLY_RATE_KEY].observe(
+            lambda change: self.handle_int_update(change), names="value")
 
         self.reset_input_widgets()
 
@@ -164,6 +175,7 @@ class Finances:
         self.acquisition_cost_labels = {}
         self.administration_hours_labels = {}
         self.administration_cost_labels = {}
+        self.public_funds_labels = {}
 
         for col in self.COLUMNS.keys():
             self.filter_widgets[col] = widgets.Text(
@@ -204,7 +216,7 @@ class Finances:
 
     def get_hourly_rate_combobox(self, value):
         return widgets.Combobox(
-            value=value,
+            value=str(value),
             options=self.calculations.known_hourly_rates,
             ensure_option=False,
             layout=widgets.Layout(
@@ -270,6 +282,11 @@ class Finances:
         return self.calculations.get_costs(
             row[self.HOURLY_RATE_KEY], row[self.ADMINISTRATION_HOURS_KEY])
 
+    def compute_public_funds(self, row):
+        return self.calculations.get_public_funds(
+            self.compute_acquisition_costs(row),
+            self.compute_administration_costs(row))
+
     def update_acquisition_costs_label(self, idx):
         if idx not in self.acquisition_cost_labels:
             return
@@ -309,32 +326,50 @@ class Finances:
 
             for col in self.COLUMNS.keys():
 
+                # plain value from input row
                 val = self.input_widgets[col].value
 
+                # customize or calculate values wher necessary
+                # DANGER:
+                # We use values from new_row in the following if statements.
+                # This simplification only works as long as columns only depend
+                # on values in previous (left) colums!
                 if col == self.ROLE_KEY:
                     # add untranslated role into dataframe
                     val = self.REVERSED_ROLES.get(val, val)
 
-                if col == self.ANNUAL_WORKING_HOURS_KEY:
-                    employment_percentage = self.input_widgets[
-                        self.EMPLOYMENT_PERCENTAGE_KEY].value
+                elif col == self.HOURLY_RATE_KEY:
+                    val = self.calculations.get_float(val)
+
+                elif col == self.ANNUAL_WORKING_HOURS_KEY:
                     val = self.calculations.get_annual_working_hours(
-                        employment_percentage)
+                        new_row[self.EMPLOYMENT_PERCENTAGE_KEY])
 
-                if col == self.RESEARCH_HOURS_KEY:
-                    annual_working_hours = new_row[
-                        self.ANNUAL_WORKING_HOURS_KEY]
-                    research_percentage = self.input_widgets[
-                        self.RESEARCH_PERCENTAGE_KEY
-                    ].value
+                elif col == self.RESEARCH_HOURS_KEY:
                     val = self.calculations.get_research_hours(
-                        annual_working_hours, research_percentage)
+                        new_row[self.ANNUAL_WORKING_HOURS_KEY],
+                        new_row[self.RESEARCH_PERCENTAGE_KEY])
 
-                if col == self.ADMINISTRATION_HOURS_KEY:
+                elif col == self.ACQUISITION_COSTS_KEY:
+                    val = self.calculations.get_costs(
+                        new_row[self.HOURLY_RATE_KEY],
+                        new_row[self.ACQUISITION_HOURS_KEY])
+
+                elif col == self.ADMINISTRATION_HOURS_KEY:
                     employment_percentage = self.input_widgets[
                         self.EMPLOYMENT_PERCENTAGE_KEY].value
                     val = self.calculations.get_administration_hours(
                         employment_percentage)
+
+                elif col == self.ADMINISTRATION_COSTS_KEY:
+                    val = self.calculations.get_costs(
+                        new_row[self.HOURLY_RATE_KEY],
+                        new_row[self.ADMINISTRATION_HOURS_KEY])
+
+                elif col == self.PUBLIC_FUNDS_KEY:
+                    val = self.calculations.get_public_funds(
+                        new_row[self.ACQUISITION_COSTS_KEY],
+                        new_row[self.ADMINISTRATION_COSTS_KEY])
 
                 new_row[col] = val
 
@@ -407,6 +442,12 @@ class Finances:
                         self.compute_administration_costs, axis=1)
                     temp = temp.loc[costs.sort_values(ascending=asc).index]
 
+                elif col == self.PUBLIC_FUNDS_KEY:
+                    funds = temp.apply(
+                        self.compute_public_funds, axis=1
+                    )
+                    temp = temp.loc[funds.sort_values(ascending=asc).index]
+
                 else:
                     temp = temp.sort_values(col, ascending=asc)
 
@@ -415,6 +456,17 @@ class Finances:
     def delete_row(self, idx):
         self.df = self.df.drop(index=idx)
         self.refresh_table()
+
+    def handle_int_update(self, change):
+        try:
+            # if there is any text
+            # it must be possible to convert to int
+            if change["new"]:
+                int(change["new"])
+        except ValueError:
+            # if the new value can't be converted to int
+            # revert the change
+            change.owner.value = change.old
 
     def handle_cell_update(self, idx, col, change):
         try:
@@ -482,6 +534,16 @@ class Finances:
 
             if col in (self.HOURLY_RATE_KEY, self.ADMINISTRATION_HOURS_KEY):
                 self.update_administration_costs_label(idx)
+
+            if col in (
+                self.HOURLY_RATE_KEY,
+                self.EMPLOYMENT_PERCENTAGE_KEY,
+                self.RESEARCH_PERCENTAGE_KEY,
+                self.ACQUISITION_HOURS_KEY
+            ):
+                if idx in self.public_funds_labels:
+                    value = self.compute_public_funds(self.df.loc[idx])
+                    self.public_funds_labels[idx].value = f"{value:,.2f}"
 
         except Exception:
             print(traceback.format_exc())
@@ -553,6 +615,13 @@ class Finances:
                 f"{value:,.2f}", self.ADMINISTRATION_COSTS_KEY)
             self.administration_cost_labels[idx] = cell
 
+        elif col == self.PUBLIC_FUNDS_KEY:
+            value = self.compute_public_funds(row)
+            cell = self.get_cost_label(
+                f"{value:,.2f}", self.PUBLIC_FUNDS_KEY
+            )
+            self.public_funds_labels[idx] = cell
+
         else:
             print("Warning: unhandled col", col)
 
@@ -564,7 +633,12 @@ class Finances:
 
     def refresh_table(self):
 
+        self.annual_working_hours_labels.clear()
+        self.research_hours_labels.clear()
         self.acquisition_cost_labels.clear()
+        self.administration_hours_labels.clear()
+        self.administration_cost_labels.clear()
+        self.public_funds_labels.clear()
 
         filtered = self.filter_df()
         row_boxes = []

@@ -19,11 +19,11 @@ class FileHandler:
             with self.output:
                 print(traceback.format_exc())
 
-    def save_data(self, total_budget, sorted_df, download_output):
+    def save_data(self, total_budget, df, download_output):
 
         data_to_export = {
             self.TOTAL_BUDGET_KEY: total_budget,
-            self.EMPLOYEES_KEY: sorted_df.to_dict(orient='records')
+            self.EMPLOYEES_KEY: df.to_dict(orient='records')
         }
 
         json_str = json.dumps(data_to_export, indent=2)
