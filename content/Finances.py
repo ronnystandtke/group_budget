@@ -1,9 +1,8 @@
 from Calculations import Calculations
-from IPython.display import display, HTML, clear_output
-import base64
+from FileHandler import FileHandler
+from IPython.display import display, HTML
 import gettext
 import ipywidgets as widgets
-import json
 import pandas as pd
 import traceback
 
@@ -18,6 +17,7 @@ class Finances:
     def __init__(self) -> None:
 
         self.calculations = Calculations()
+        self.file_handler = FileHandler()
 
         # keys for our file
         self.TOTAL_BUDGET_KEY = "total_budget"
@@ -226,10 +226,10 @@ class Finances:
 
         try:
             content = self.upload_button.value[0]["content"]
-            json_str = bytes(content).decode('utf-8')
-            json_data = json.loads(json_str)
-            self.total_budget.value = json_data[self.TOTAL_BUDGET_KEY]
-            self.df = pd.DataFrame(json_data[self.EMPLOYEES_KEY])
+            json_data = self.file_handler.load_data(content)
+            self.total_budget.value = json_data[
+                self.file_handler.TOTAL_BUDGET_KEY]
+            self.df = pd.DataFrame(json_data[self.file_handler.EMPLOYEES_KEY])
             self.refresh_table()
 
             self.upload_button.value = ()
@@ -240,30 +240,10 @@ class Finances:
                 print(traceback.format_exc())
 
     def save_data(self):
-        sorted_df = self.sort_df(self.df)
-
-        data_to_export = {
-            self.TOTAL_BUDGET_KEY: self.total_budget.value,
-            self.EMPLOYEES_KEY: sorted_df.to_dict(orient='records')
-        }
-
-        json_str = json.dumps(data_to_export, indent=2)
-        b64 = base64.b64encode(json_str.encode()).decode()
-
-        html = f"""
-        <a id="download-link"
-           download="data.json"
-           href="data:text/json;base64,{b64}"
-           style="display:none;">
-        </a>
-        <script>
-            document.getElementById('download-link').click();
-        </script>
-        """
-
-        with self.download_output:
-            clear_output()
-            display(HTML(html))
+        self.file_handler.save_data(
+            self.total_budget.value,
+            self.sort_df(self.df),
+            self.download_output)
 
     def reset_input_widgets(self):
         self.input_widgets[self.NAME_KEY].value = ""
