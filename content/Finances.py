@@ -28,6 +28,7 @@ class Finances:
         self.upload_button.observe(self.load_data, names="value")
 
         self.save_button = widgets.Button(description="💾 " + _("Save"))
+        self.save_button.on_click(lambda b: self.save_data())
 
         finances_description_width = "210px"
         finances_widget_width = "400px"
@@ -147,6 +148,7 @@ class Finances:
             description=_("Add"),
             button_style="success",
             layout=widgets.Layout(width=self.column_widths[self.ACTIONS]))
+        self.add_button.on_click(lambda b: self.add_row())
 
         self.sort_buttons = {}
         self.filter_widgets = {}
@@ -272,14 +274,12 @@ class Finances:
         self.input_widgets[self.ACQUISITION_HOURS_KEY].value = 0
 
     def compute_acquisition_costs(self, row):
-        hourly_rate = float(row[self.HOURLY_RATE_KEY])
-        acquisition_hours = float(row[self.ACQUISITION_HOURS_KEY])
-        return self.calculations.get_costs(hourly_rate, acquisition_hours)
+        return self.calculations.get_costs(
+            row[self.HOURLY_RATE_KEY], row[self.ACQUISITION_HOURS_KEY])
 
     def compute_administration_costs(self, row):
-        hourly_rate = float(row[self.HOURLY_RATE_KEY])
-        administration_hours = float(row[self.ADMINISTRATION_HOURS_KEY])
-        return self.calculations.get_costs(hourly_rate, administration_hours)
+        return self.calculations.get_costs(
+            row[self.HOURLY_RATE_KEY], row[self.ADMINISTRATION_HOURS_KEY])
 
     def update_acquisition_costs_label(self, idx):
         if idx not in self.acquisition_cost_labels:

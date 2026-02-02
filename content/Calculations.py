@@ -14,7 +14,7 @@ class Calculations:
 
     def get_costs(self, hourly_rate, hours):
         try:
-            return hourly_rate * hours
+            return float(hourly_rate) * float(hours)
         except Exception:
             return 0.0
 
