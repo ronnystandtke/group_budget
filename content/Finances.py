@@ -216,6 +216,9 @@ class Finances:
                 width=self.column_widths[width_key]))
 
     def load_data(self, change):
+        if not change["new"]:
+            return
+
         try:
             content = self.upload_button.value[0]["content"]
             json_str = bytes(content).decode('utf-8')
@@ -223,6 +226,9 @@ class Finances:
             self.total_budget.value = json_data[self.TOTAL_BUDGET_KEY]
             self.df = pd.DataFrame(json_data[self.EMPLOYEES_KEY])
             self.refresh_table()
+
+            self.upload_button.value = ()
+            self.upload_button._counter = 0
         except Exception:
             print(traceback.format_exc())
             with self.output:
@@ -383,7 +389,7 @@ class Finances:
         return temp
 
     def delete_row(self, idx):
-        self.df = self.df.drop(index=idx).reset_index(drop=True)
+        self.df = self.df.drop(index=idx)
         self.refresh_table()
 
     def get_cell(self, idx, row, col):
@@ -435,10 +441,6 @@ class Finances:
         def make_update_func(idx, col):
 
             def update(change):
-
-                print("idx", idx)
-                print("col", col)
-                print("change", change)
 
                 new_value = change['new']
 
