@@ -44,6 +44,11 @@ class Finances:
             style=finances_style,
             layout=finances_layout)
 
+        self.total_budget.observe(
+            lambda change: self.update_remaining_budget(),
+            names="value"
+        )
+
         self.acquisition_expenses = widgets.FloatText(
             disabled=True,
             description=_("Acquisition Costs (CHF):"),
@@ -291,10 +296,17 @@ class Finances:
     def update_total_acquisition_expenses(self):
         total = self.df.apply(self.compute_acquisition_cost, axis=1).sum()
         self.acquisition_expenses.value = total
+        self.update_remaining_budget()
 
     def update_total_administration_expenses(self):
         total = self.df.apply(self.compute_administration_cost, axis=1).sum()
         self.administrative_expenses.value = total
+        self.update_remaining_budget()
+
+    def update_remaining_budget(self):
+        self.remaining_budget.value = self.calculations.get_remaining_budget(
+            self.total_budget.value, self.acquisition_expenses.value,
+            self.administrative_expenses.value)
 
     def add_row(self):
         try:
@@ -521,6 +533,7 @@ class Finances:
 
         self.update_total_acquisition_expenses()
         self.update_total_administration_expenses()
+        self.update_remaining_budget()
 
     def show(self):
 

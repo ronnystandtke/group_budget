@@ -17,3 +17,7 @@ class Calculations:
             return hourly_rate * hours
         except Exception:
             return 0.0
+
+    def get_remaining_budget(
+            self, total_budget, acquisition_expenses, administrative_expenses):
+        return total_budget - acquisition_expenses - administrative_expenses
