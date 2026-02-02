@@ -110,10 +110,10 @@ class Finances:
             self.ROLE_KEY: "110px",
             self.HOURLY_RATE_KEY: "90px",
             self.EMPLOYMENT_PERCENTAGE_KEY: "210px",
-            self.ANNUAL_WORKING_HOURS_KEY: "100px",
+            self.ANNUAL_WORKING_HOURS_KEY: "55px",
             self.RESEARCH_PERCENTAGE_KEY: "210px",
             self.ACQUISITION_HOURS_KEY: "90px",
-            self.ACQUISITION_COSTS_KEY: "130px",
+            self.ACQUISITION_COSTS_KEY: "70px",
             self.ADMINISTRATION_HOURS_KEY: "130px",
             self.ADMINISTRATION_COSTS_KEY: "130px",
             self.ACTIONS: "100px"
