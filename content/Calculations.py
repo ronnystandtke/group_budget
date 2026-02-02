@@ -23,6 +23,12 @@ class Calculations:
         except Exception:
             return 0.0
 
+    def get_int(self, value):
+        try:
+            return int(value)
+        except Exception:
+            return 0
+
     def get_costs(self, hourly_rate, hours):
         return self.get_float(hourly_rate) * self.get_float(hours)
 

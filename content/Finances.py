@@ -286,6 +286,22 @@ class Finances:
             self.compute_acquisition_costs(row),
             self.compute_administration_costs(row))
 
+    def update_annual_working_hours_label(self, idx):
+        if idx not in self.annual_working_hours_labels:
+            return
+
+        row = self.df.loc[idx]
+        value = row[self.ANNUAL_WORKING_HOURS_KEY]
+        self.annual_working_hours_labels[idx].value = (f"{value:.2f}")
+
+    def update_research_hours_label(self, idx):
+        if idx not in self.research_hours_labels:
+            return
+
+        row = self.df.loc[idx]
+        value = row[self.RESEARCH_HOURS_KEY]
+        self.research_hours_labels[idx].value = (f"{value:.2f}")
+
     def update_acquisition_costs_label(self, idx):
         if idx not in self.acquisition_cost_labels:
             return
@@ -295,6 +311,14 @@ class Finances:
         self.acquisition_cost_labels[idx].value = f"{value:,.2f}"
         self.update_total_acquisition_costs()
 
+    def update_administration_hours_label(self, idx):
+        if idx not in self.administration_hours_labels:
+            return
+
+        row = self.df.loc[idx]
+        value = row[self.ADMINISTRATION_HOURS_KEY]
+        self.administration_hours_labels[idx].value = (f"{value:.2f}")
+
     def update_administration_costs_label(self, idx):
         if idx not in self.administration_cost_labels:
             return
@@ -303,6 +327,14 @@ class Finances:
         value = self.compute_administration_costs(row)
         self.administration_cost_labels[idx].value = f"{value:,.2f}"
         self.update_total_administration_costs()
+
+    def update_public_funds_label(self, idx):
+        if idx not in self.public_funds_labels:
+            return
+
+        row = self.df.loc[idx]
+        value = self.compute_public_funds(row)
+        self.public_funds_labels[idx].value = f"{value:,.2f}"
 
     def update_total_acquisition_costs(self):
         total = self.df.apply(self.compute_acquisition_costs, axis=1).sum()
@@ -319,6 +351,7 @@ class Finances:
             self.total_budget.value, self.acquisition_expenses.value,
             self.administrative_expenses.value)
 
+    # adds a new row to the DataFrame df
     def add_row(self):
         try:
             new_row = {}
@@ -338,7 +371,7 @@ class Finances:
                     val = self.REVERSED_ROLES.get(val, val)
 
                 elif col == self.HOURLY_RATE_KEY:
-                    val = self.calculations.get_float(val)
+                    val = self.calculations.get_int(val)
 
                 elif col == self.ANNUAL_WORKING_HOURS_KEY:
                     val = self.calculations.get_annual_working_hours(
@@ -467,89 +500,181 @@ class Finances:
             # revert the change
             change.owner.value = change.old
 
+    def handle_role_update(self, idx, col, new_value):
+        self.df.at[idx, col] = self.REVERSED_ROLES.get(new_value, new_value)
+
+    def handle_hourly_rate_update(self, idx, change):
+
+        value = None
+        try:
+            # if there is any text
+            # it must be possible to convert to int
+            if change["new"]:
+                value = int(change["new"])
+        except ValueError:
+            # if the new value can't be converted to int
+            # revert the change
+            change.owner.value = change.old
+            value = change.old
+
+        new_hourly_rate = value if value else 0
+        self.df.at[idx, self.HOURLY_RATE_KEY] = new_hourly_rate
+
+        # update dependencies
+        self.update_acquisition_costs(idx)
+        self.update_administration_costs(idx)
+        self.update_public_funds(idx)
+
+    def handle_employment_percentage_update(self, idx, new_value):
+
+        self.df.at[idx, self.EMPLOYMENT_PERCENTAGE_KEY] = new_value
+
+        # update annual working hours
+        annual_working_hours = (
+            self.calculations.get_annual_working_hours(new_value))
+        self.df.at[idx, self.ANNUAL_WORKING_HOURS_KEY] = annual_working_hours
+        self.update_annual_working_hours_label(idx)
+
+        # update research hours
+        research_percentage = float(
+            self.df.at[idx, self.RESEARCH_PERCENTAGE_KEY])
+        research_hours = self.calculations.get_research_hours(
+            annual_working_hours, research_percentage)
+        self.df.at[idx, self.RESEARCH_HOURS_KEY] = research_hours
+        self.update_research_hours_label(idx)
+
+        # update administration hours
+        administration_hours = (
+            self.calculations.get_administration_hours(new_value))
+        self.df.at[idx, self.ADMINISTRATION_HOURS_KEY] = administration_hours
+        self.update_administration_hours_label(idx)
+
+        # update administration cost
+        self.update_administration_costs(idx)
+
+        # update public funds
+        public_funds = self.calculations.get_public_funds(
+            self.df.at[idx, self.ACQUISITION_COSTS_KEY],
+            self.df.at[idx, self.ADMINISTRATION_COSTS_KEY])
+        self.df.at[idx, self.PUBLIC_FUNDS_KEY] = public_funds
+        self.update_public_funds_label(idx)
+
+    def handle_research_percentage_update(self, idx, new_value):
+
+        self.df.at[idx, self.RESEARCH_PERCENTAGE_KEY] = new_value
+
+        # update research hours
+        annual_working_hours = self.df.at[idx, self.ANNUAL_WORKING_HOURS_KEY]
+        research_hours = self.calculations.get_research_hours(
+            annual_working_hours, new_value)
+        self.df.at[idx, self.RESEARCH_HOURS_KEY] = research_hours
+        self.update_research_hours_label(idx)
+
+    def handle_acquisition_hours_update(self, idx, new_value):
+        self.df.at[idx, self.ACQUISITION_HOURS_KEY] = new_value
+        self.update_acquisition_costs(idx)
+        self.update_public_funds(idx)
+
+    def update_acquisition_costs(self, idx):
+        acquisition_costs = self.calculations.get_costs(
+            self.df.at[idx, self.HOURLY_RATE_KEY],
+            self.df.at[idx, self.ACQUISITION_HOURS_KEY])
+        self.df.at[idx, self.ACQUISITION_COSTS_KEY] = acquisition_costs
+        self.update_acquisition_costs_label(idx)
+
+    def update_administration_costs(self, idx):
+        administration_costs = self.calculations.get_costs(
+            self.df.at[idx, self.HOURLY_RATE_KEY],
+            self.df.at[idx, self.ADMINISTRATION_HOURS_KEY])
+        self.df.at[idx, self.ADMINISTRATION_COSTS_KEY] = administration_costs
+        self.update_administration_costs_label(idx)
+
+    def update_public_funds(self, idx):
+        public_funds = self.calculations.get_public_funds(
+            self.df.at[idx, self.ACQUISITION_COSTS_KEY],
+            self.df.at[idx, self.ADMINISTRATION_COSTS_KEY])
+        self.df.at[idx, self.PUBLIC_FUNDS_KEY] = public_funds
+        self.update_public_funds_label(idx)
+
     def handle_cell_update(self, idx, col, change):
         try:
             new_value = change["new"]
 
-            if col == self.ROLE_KEY:
-                self.df.at[idx, col] = self.REVERSED_ROLES.get(
-                    new_value, new_value)
-                return
+            if col == self.NAME_KEY:
+                self.df.at[idx, col] = new_value
 
-            if col in (self.HOURLY_RATE_KEY, self.ACQUISITION_HOURS_KEY):
-                try:
-                    # if there is any text
-                    # it must be possible to convert to int
-                    if change["new"]:
-                        new_value = int(change["new"])
-                except ValueError:
-                    # if the new value can't be converted to int
-                    # revert the change
-                    change.owner.value = change.old
-                    return
+            elif col == self.ROLE_KEY:
+                self.handle_role_update(idx, col, new_value)
 
-            if col == self.EMPLOYMENT_PERCENTAGE_KEY:
+            elif col == self.HOURLY_RATE_KEY:
+                self.handle_hourly_rate_update(idx, change)
 
-                annual_hours = (
-                    self.calculations.get_annual_working_hours(new_value))
-                key = self.ANNUAL_WORKING_HOURS_KEY
-                self.df.at[idx, key] = annual_hours
-                if idx in self.annual_working_hours_labels:
-                    self.annual_working_hours_labels[idx].value = (
-                        f"{annual_hours:.2f}")
+            elif col == self.EMPLOYMENT_PERCENTAGE_KEY:
+                self.handle_employment_percentage_update(idx, new_value)
 
-                admin_hours = (
-                    self.calculations.get_administration_hours(new_value))
-                key = self.ADMINISTRATION_HOURS_KEY
-                self.df.at[idx, key] = admin_hours
-                if idx in self.administration_hours_labels:
-                    self.administration_hours_labels[idx].value = (
-                        f"{admin_hours:.2f}")
+            elif col == self.RESEARCH_PERCENTAGE_KEY:
+                self.handle_research_percentage_update(idx, new_value)
 
-                self.update_administration_costs_label(idx)
-
-            if col in (self.RESEARCH_PERCENTAGE_KEY,
-                       self.EMPLOYMENT_PERCENTAGE_KEY):
-
-                annual_working_hours = float(self.df.at[
-                    idx, self.ANNUAL_WORKING_HOURS_KEY])
-                research_percentage = float(self.df.at[
-                    idx, self.RESEARCH_PERCENTAGE_KEY])
-                research_hours = self.calculations.get_research_hours(
-                    annual_working_hours, research_percentage)
-
-                self.df.at[idx, self.RESEARCH_HOURS_KEY] = research_hours
-
-                if idx in self.research_hours_labels:
-                    self.research_hours_labels[idx].value = (
-                        f"{research_hours:.2f}"
-                    )
-
-            self.df.at[idx, col] = new_value
-
-            # update AFTER setting the new value!
-            if col in (self.HOURLY_RATE_KEY, self.ACQUISITION_HOURS_KEY):
-                self.update_acquisition_costs_label(idx)
-
-            if col in (self.HOURLY_RATE_KEY, self.ADMINISTRATION_HOURS_KEY):
-                self.update_administration_costs_label(idx)
-
-            if col in (
-                self.HOURLY_RATE_KEY,
-                self.EMPLOYMENT_PERCENTAGE_KEY,
-                self.RESEARCH_PERCENTAGE_KEY,
-                self.ACQUISITION_HOURS_KEY
-            ):
-                if idx in self.public_funds_labels:
-                    value = self.compute_public_funds(self.df.loc[idx])
-                    self.public_funds_labels[idx].value = f"{value:,.2f}"
+            elif col == self.ACQUISITION_HOURS_KEY:
+                self.handle_acquisition_hours_update(idx, new_value)
 
         except Exception:
             print(traceback.format_exc())
             with self.output:
                 print(traceback.format_exc())
 
+    def get_cell_annual_working_hours(self, idx, row):
+        value = self.calculations.get_annual_working_hours(
+            row[self.EMPLOYMENT_PERCENTAGE_KEY])
+        cell = self.get_cost_label(
+            f"{value:.2f}", self.ANNUAL_WORKING_HOURS_KEY)
+        self.annual_working_hours_labels[idx] = cell
+        return cell
+
+    def get_cell_research_hours(self, idx, row):
+        try:
+            annual_working_hours = float(row[self.ANNUAL_WORKING_HOURS_KEY])
+        except Exception:
+            annual_working_hours = 0.0
+        research_percentage = row[self.RESEARCH_PERCENTAGE_KEY]
+        value = self.calculations.get_research_hours(
+            annual_working_hours, research_percentage)
+        cell = self.get_cost_label(f"{value:.2f}", self.RESEARCH_HOURS_KEY)
+        self.research_hours_labels[idx] = cell
+        return cell
+
+    def get_cell_acquisistion_costs(self, idx, row):
+        value = self.compute_acquisition_costs(row)
+        cell = self.get_cost_label(f"{value:,.2f}", self.ACQUISITION_COSTS_KEY)
+        self.acquisition_cost_labels[idx] = cell
+        return cell
+
+    def get_cell_administration_hours(self, idx, row):
+        try:
+            value = float(row[self.ADMINISTRATION_HOURS_KEY])
+            text = f"{value:.2f}"
+        except Exception:
+            text = "0.00"
+        cell = self.get_cost_label(text, self.ADMINISTRATION_HOURS_KEY)
+        self.administration_hours_labels[idx] = cell
+        return cell
+
+    def get_cell_administration_costs(self, idx, row):
+        value = self.compute_administration_costs(row)
+        cell = self.get_cost_label(
+            f"{value:,.2f}", self.ADMINISTRATION_COSTS_KEY)
+        self.administration_cost_labels[idx] = cell
+        return cell
+
+    def get_cell_public_funds(self, idx, row):
+        value = self.compute_public_funds(row)
+        cell = self.get_cost_label(f"{value:,.2f}", self.PUBLIC_FUNDS_KEY)
+        self.public_funds_labels[idx] = cell
+        return cell
+
     def get_cell(self, idx, row, col):
+
+        observing = True
 
         if col == self.NAME_KEY:
             cell = self.get_name_text(row[col])
@@ -565,68 +690,43 @@ class Finances:
                 row[col], self.EMPLOYMENT_PERCENTAGE_KEY)
 
         elif col == self.ANNUAL_WORKING_HOURS_KEY:
-            employment = row[self.EMPLOYMENT_PERCENTAGE_KEY]
-            value = self.calculations.get_annual_working_hours(employment)
-            cell = self.get_cost_label(
-                f"{value:.2f}", self.ANNUAL_WORKING_HOURS_KEY
-            )
-            self.annual_working_hours_labels[idx] = cell
+            cell = self.get_cell_annual_working_hours(idx, row)
+            observing = False
 
         elif col == self.RESEARCH_PERCENTAGE_KEY:
             cell = self.get_float_slider(
                 row[col], self.RESEARCH_PERCENTAGE_KEY)
 
         elif col == self.RESEARCH_HOURS_KEY:
-            try:
-                annual_working_hours = float(
-                    row[self.ANNUAL_WORKING_HOURS_KEY])
-            except Exception:
-                annual_working_hours = 0.0
-            research_percentage = row[self.RESEARCH_PERCENTAGE_KEY]
-            value = self.calculations.get_research_hours(
-                annual_working_hours, research_percentage)
-            cell = self.get_cost_label(
-                f"{value:.2f}", self.RESEARCH_HOURS_KEY
-            )
-            self.research_hours_labels[idx] = cell
+            cell = self.get_cell_research_hours(idx, row)
+            observing = False
 
         elif col == self.ACQUISITION_HOURS_KEY:
             cell = self.get_floattext(row[col], self.ACQUISITION_HOURS_KEY)
 
         elif col == self.ACQUISITION_COSTS_KEY:
-            value = self.compute_acquisition_costs(row)
-            cell = self.get_cost_label(
-                f"{value:,.2f}", self.ACQUISITION_COSTS_KEY)
-            self.acquisition_cost_labels[idx] = cell
+            cell = self.get_cell_acquisistion_costs(idx, row)
+            observing = False
 
         elif col == self.ADMINISTRATION_HOURS_KEY:
-            try:
-                value = float(row[col])
-                text = f"{value:.2f}"
-            except Exception:
-                text = "0.00"
-            cell = self.get_cost_label(text, self.ADMINISTRATION_HOURS_KEY)
-            self.administration_hours_labels[idx] = cell
+            cell = self.get_cell_administration_hours(idx, row)
+            observing = False
 
         elif col == self.ADMINISTRATION_COSTS_KEY:
-            value = self.compute_administration_costs(row)
-            cell = self.get_cost_label(
-                f"{value:,.2f}", self.ADMINISTRATION_COSTS_KEY)
-            self.administration_cost_labels[idx] = cell
+            cell = self.get_cell_administration_costs(idx, row)
+            observing = False
 
         elif col == self.PUBLIC_FUNDS_KEY:
-            value = self.compute_public_funds(row)
-            cell = self.get_cost_label(
-                f"{value:,.2f}", self.PUBLIC_FUNDS_KEY
-            )
-            self.public_funds_labels[idx] = cell
+            cell = self.get_cell_public_funds(idx, row)
+            observing = False
 
         else:
             print("Warning: unhandled col", col)
 
-        cell.observe(
-            lambda change, i=idx, c=col:
-                self.handle_cell_update(i, c, change), names="value")
+        if observing:
+            cell.observe(
+                lambda change, i=idx, c=col:
+                    self.handle_cell_update(i, c, change), names="value")
 
         return cell
 
