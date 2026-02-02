@@ -6,14 +6,16 @@ class Calculations:
         self.known_hourly_rates = ["55", "69", "87", "89", "103", "117"]
 
     def get_annual_working_hours(self, employment_percentage):
-        return self.ANNUAL_WORKING_HOURS * employment_percentage / 100
+        return self._get_percentage(
+            self.ANNUAL_WORKING_HOURS, employment_percentage)
+
+    def get_research_hours(self, annual_working_hours, research_percentage):
+        return self._get_percentage(
+            annual_working_hours, research_percentage)
 
     def get_administration_hours(self, employment_percentage):
-        return (
-            self.ANNUAL_WORKING_HOURS *
-            employment_percentage *
-            self.ADMINISTRATION_FACTOR / 100
-        )
+        return (self.get_annual_working_hours(employment_percentage) *
+                self.ADMINISTRATION_FACTOR)
 
     def get_costs(self, hourly_rate, hours):
         try:
@@ -24,3 +26,6 @@ class Calculations:
     def get_remaining_budget(
             self, total_budget, acquisition_expenses, administrative_expenses):
         return total_budget - acquisition_expenses - administrative_expenses
+
+    def _get_percentage(self, value, percentage):
+        return value * percentage / 100

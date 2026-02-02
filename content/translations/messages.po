@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-02 13:08+0100\n"
+"POT-Creation-Date: 2026-02-02 16:22+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -41,67 +41,71 @@ msgstr ""
 msgid "Remaining Budget (CHF):"
 msgstr ""
 
-#: ../Finances.py:79
+#: ../Finances.py:80
 msgid "Name"
 msgstr ""
 
-#: ../Finances.py:80
+#: ../Finances.py:81
 msgid "Role"
 msgstr ""
 
-#: ../Finances.py:81
+#: ../Finances.py:82
 msgid "Hourly<br>Rate<br>(CHF)"
 msgstr ""
 
-#: ../Finances.py:82
+#: ../Finances.py:83
 msgid "Employment<br>(%)"
 msgstr ""
 
-#: ../Finances.py:84
+#: ../Finances.py:85
 msgid "Annual<br>Working<br>Hours<br>(h)"
 msgstr ""
 
-#: ../Finances.py:85
+#: ../Finances.py:86
 msgid "Research<br>(%)"
 msgstr ""
 
-#: ../Finances.py:86
-msgid "Acquisition<br>(h)"
-msgstr ""
-
 #: ../Finances.py:87
-msgid "Acquisition<br>(CHF)"
+msgid "Research<br>(h)"
 msgstr ""
 
 #: ../Finances.py:88
-msgid "Administration<br>(h)"
+msgid "Acquisition<br>(h)"
+msgstr ""
+
+#: ../Finances.py:89
+msgid "Acquisition<br>(CHF)"
 msgstr ""
 
 #: ../Finances.py:90
+msgid "Administration<br>(h)"
+msgstr ""
+
+#: ../Finances.py:92
 msgid "Administration<br>(CHF)"
 msgstr ""
 
-#: ../Finances.py:95
+#: ../Finances.py:97
 msgid "Lecturer"
 msgstr ""
 
-#: ../Finances.py:96
+#: ../Finances.py:98
 msgid "Scientific Staff"
 msgstr ""
 
-#: ../Finances.py:97
+#: ../Finances.py:99
 msgid "Research Assistant"
 msgstr ""
 
-#: ../Finances.py:104
+#: ../Finances.py:106
 msgid "Actions"
 msgstr ""
 
-#: ../Finances.py:150
+#: ../Finances.py:155
 msgid "Add"
 msgstr ""
 
-#: ../Finances.py:164
+#: ../Finances.py:170
 msgid "Filter"
 msgstr ""
 
