@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-01 23:04+0100\n"
+"POT-Creation-Date: 2026-02-02 11:04+0100\n"
 "PO-Revision-Date: 2026-01-31 18:51+0100\n"
 "Last-Translator: Ronny Standtke <ronny.standtke@gmx.net>\n"
 "Language-Team: German <de@li.org>\n"
@@ -16,90 +16,89 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../Finances.py:28
+#: ../Finances.py:27
 msgid "Open"
 msgstr "Öffnen"
 
-#: ../Finances.py:31
+#: ../Finances.py:30
 msgid "Save"
 msgstr "Speichern"
 
-#: ../Finances.py:44
+#: ../Finances.py:43
 msgid "Total Budget (CHF):"
 msgstr "Gesamtbudget (CHF)"
 
-#: ../Finances.py:50
+#: ../Finances.py:54
 msgid "Acquisition Costs (CHF):"
 msgstr "Akquisekosten (CHF)"
 
-#: ../Finances.py:56
+#: ../Finances.py:60
 msgid "Administative Costs (CHF):"
 msgstr "Administrationskosten (CHF)"
 
-#: ../Finances.py:62
+#: ../Finances.py:66
 msgid "Remaining Budget (CHF):"
 msgstr "Verbleibendes Budget (CHF)"
 
-#: ../Finances.py:77
+#: ../Finances.py:81
 msgid "Name"
 msgstr ""
 
-#: ../Finances.py:78
+#: ../Finances.py:82
 msgid "Role"
 msgstr "Rolle"
 
-#: ../Finances.py:79
-msgid "Hourly Rate (CHF)"
-msgstr "Stundensatz"
-
-#: ../Finances.py:80
-msgid "Employment (%)"
-msgstr "Beschäftigungsgrad (%)"
-
-#: ../Finances.py:81
-msgid "Research (%)"
-msgstr "Forschung (%)"
-
-#: ../Finances.py:82
-msgid "Acquisition (h)"
-msgstr "Akquise (h)"
-
 #: ../Finances.py:83
-msgid "Acquisition Cost (CHF)"
-msgstr "Akquisekosten (CHF)"
+msgid "Hourly<br>Rate<br>(CHF)"
+msgstr "Stundensatz<br>(CHF)"
 
 #: ../Finances.py:84
-msgid "Administration (h)"
-msgstr ""
+msgid "Employment<br>(%)"
+msgstr "Beschäftigungsgrad<br>(%)"
 
 #: ../Finances.py:85
-msgid "Administration Cost (CHF)"
-msgstr "Administrationskosten (CHF)"
+msgid "Research<br>(%)"
+msgstr "Forschung<br>(%)"
 
-#: ../Finances.py:89
+#: ../Finances.py:86
+msgid "Acquisition<br>(h)"
+msgstr "Akquise<br>(h)"
+
+#: ../Finances.py:87
+msgid "Acquisition<br>Costs<br>(CHF)"
+msgstr "Akquisekosten<br>(CHF)"
+
+#: ../Finances.py:88
+msgid "Administration<br>(h)"
+msgstr "Administration<br>(h)"
+
+#: ../Finances.py:90
+msgid "Administration<br>Costs<br>(CHF)"
+msgstr "Administrationskosten<br>(CHF)"
+
+#: ../Finances.py:95
 msgid "Lecturer"
 msgstr "Dozent(in)"
 
-#: ../Finances.py:90
+#: ../Finances.py:96
 msgid "Scientific Staff"
 msgstr "WiMa"
 
-#: ../Finances.py:91
+#: ../Finances.py:97
 msgid "Research Assistant"
 msgstr "Assistent(in)"
 
-#: ../Finances.py:98
+#: ../Finances.py:104
 msgid "Actions"
 msgstr "Aktionen"
 
-#: ../Finances.py:143
+#: ../Finances.py:147
 msgid "Add"
 msgstr "Hinzufügen"
 
-#: ../Finances.py:154
-#, python-brace-format
-msgid "{col} Filter"
-msgstr "{col} filtern"
+#: ../Finances.py:159
+msgid "Filter"
+msgstr ""
 
 #: ../temp.py:41
 msgid ""
@@ -132,6 +131,3 @@ msgstr ""
 "                https://jupyterlite.readthedocs.io/en/latest/howto/configure/"
 "advanced/service-worker.html</a>\n"
 "                "
-
-#~ msgid "Click or type for suggestions"
-#~ msgstr "Für Vorschläge klicken oder tippen"

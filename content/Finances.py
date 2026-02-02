@@ -73,20 +73,21 @@ class Finances:
         self.EMPLOYMENT_PERCENTAGE_KEY = "Employment (%)"
         self.RESEARCH_PERCENTAGE_KEY = "Research (%)"
         self.ACQUISITION_HOURS_KEY = "Acquisition (h)"
-        self.ACQUISITION_COST_KEY = "Acquisition Costs (CHF)"
+        self.ACQUISITION_COSTS_KEY = "Acquisition Costs (CHF)"
         self.ADMINISTRATION_HOURS_KEY = "Administration (h)"
-        self.ADMINISTRATION_COST_KEY = "Administration Costs (CHF)"
+        self.ADMINISTRATION_COSTS_KEY = "Administration Costs (CHF)"
 
         self.COLUMNS = {
             self.NAME_KEY: _("Name"),
             self.ROLE_KEY: _("Role"),
-            self.HOURLY_RATE_KEY: _("Hourly Rate (CHF)"),
-            self.EMPLOYMENT_PERCENTAGE_KEY: _("Employment (%)"),
-            self.RESEARCH_PERCENTAGE_KEY: _("Research (%)"),
-            self.ACQUISITION_HOURS_KEY: _("Acquisition (h)"),
-            self.ACQUISITION_COST_KEY: _("Acquisition Cost (CHF)"),
-            self.ADMINISTRATION_HOURS_KEY: _("Administration (h)"),
-            self.ADMINISTRATION_COST_KEY: _("Administration Cost (CHF)")
+            self.HOURLY_RATE_KEY: _("Hourly<br>Rate<br>(CHF)"),
+            self.EMPLOYMENT_PERCENTAGE_KEY: _("Employment<br>(%)"),
+            self.RESEARCH_PERCENTAGE_KEY: _("Research<br>(%)"),
+            self.ACQUISITION_HOURS_KEY: _("Acquisition<br>(h)"),
+            self.ACQUISITION_COSTS_KEY: _("Acquisition<br>Costs<br>(CHF)"),
+            self.ADMINISTRATION_HOURS_KEY: _("Administration<br>(h)"),
+            self.ADMINISTRATION_COSTS_KEY: (
+                _("Administration<br>Costs<br>(CHF)"))
             }
 
         # see https://en.wikipedia.org/wiki/List_of_academic_ranks
@@ -111,9 +112,9 @@ class Finances:
             self.EMPLOYMENT_PERCENTAGE_KEY: "210px",
             self.RESEARCH_PERCENTAGE_KEY: "210px",
             self.ACQUISITION_HOURS_KEY: "90px",
-            self.ACQUISITION_COST_KEY: "150px",
+            self.ACQUISITION_COSTS_KEY: "130px",
             self.ADMINISTRATION_HOURS_KEY: "130px",
-            self.ADMINISTRATION_COST_KEY: "200px",
+            self.ADMINISTRATION_COSTS_KEY: "130px",
             self.ACTIONS: "100px"
         }
 
@@ -132,12 +133,12 @@ class Finances:
                 self.get_float_slider(0, self.RESEARCH_PERCENTAGE_KEY),
             self.ACQUISITION_HOURS_KEY:
                 self.get_floattext(0, self.ACQUISITION_HOURS_KEY),
-            self.ACQUISITION_COST_KEY:
-                self.get_cost_label("", self.ACQUISITION_COST_KEY),
+            self.ACQUISITION_COSTS_KEY:
+                self.get_cost_label("", self.ACQUISITION_COSTS_KEY),
             self.ADMINISTRATION_HOURS_KEY:
                 self.get_cost_label("", self.ADMINISTRATION_HOURS_KEY),
-            self.ADMINISTRATION_COST_KEY:
-                self.get_cost_label("", self.ADMINISTRATION_COST_KEY)
+            self.ADMINISTRATION_COSTS_KEY:
+                self.get_cost_label("", self.ADMINISTRATION_COSTS_KEY)
         }
 
         self.reset_input_widgets()
@@ -155,7 +156,7 @@ class Finances:
 
         for col in self.COLUMNS.keys():
             self.filter_widgets[col] = widgets.Text(
-                placeholder=_("{col} Filter").format(col=self.COLUMNS[col]),
+                placeholder=_("Filter").format(col=self.COLUMNS[col]),
                 layout=widgets.Layout(width=self.column_widths[col]))
             self.filter_widgets[col].continuous_update = False
             self.sort_buttons[col] = widgets.Button(
@@ -270,41 +271,41 @@ class Finances:
         self.input_widgets[self.RESEARCH_PERCENTAGE_KEY].value = 50
         self.input_widgets[self.ACQUISITION_HOURS_KEY].value = 0
 
-    def compute_acquisition_cost(self, row):
+    def compute_acquisition_costs(self, row):
         hourly_rate = float(row[self.HOURLY_RATE_KEY])
         acquisition_hours = float(row[self.ACQUISITION_HOURS_KEY])
         return self.calculations.get_costs(hourly_rate, acquisition_hours)
 
-    def compute_administration_cost(self, row):
+    def compute_administration_costs(self, row):
         hourly_rate = float(row[self.HOURLY_RATE_KEY])
         administration_hours = float(row[self.ADMINISTRATION_HOURS_KEY])
         return self.calculations.get_costs(hourly_rate, administration_hours)
 
-    def update_acquisition_cost_label(self, idx):
+    def update_acquisition_costs_label(self, idx):
         if idx not in self.acquisition_cost_labels:
             return
 
         row = self.df.loc[idx]
-        value = self.compute_acquisition_cost(row)
+        value = self.compute_acquisition_costs(row)
         self.acquisition_cost_labels[idx].value = f"{value:,.2f}"
-        self.update_total_acquisition_expenses()
+        self.update_total_acquisition_costs()
 
-    def update_administration_cost_label(self, idx):
+    def update_administration_costs_label(self, idx):
         if idx not in self.administration_cost_labels:
             return
 
         row = self.df.loc[idx]
-        value = self.compute_administration_cost(row)
+        value = self.compute_administration_costs(row)
         self.administration_cost_labels[idx].value = f"{value:,.2f}"
-        self.update_total_administration_expenses()
+        self.update_total_administration_costs()
 
-    def update_total_acquisition_expenses(self):
-        total = self.df.apply(self.compute_acquisition_cost, axis=1).sum()
+    def update_total_acquisition_costs(self):
+        total = self.df.apply(self.compute_acquisition_costs, axis=1).sum()
         self.acquisition_expenses.value = total
         self.update_remaining_budget()
 
-    def update_total_administration_expenses(self):
-        total = self.df.apply(self.compute_administration_cost, axis=1).sum()
+    def update_total_administration_costs(self):
+        total = self.df.apply(self.compute_administration_costs, axis=1).sum()
         self.administrative_expenses.value = total
         self.update_remaining_budget()
 
@@ -389,14 +390,14 @@ class Finances:
                         key=lambda s: pd.to_numeric(s, errors="coerce")
                     )
 
-                elif col == self.ACQUISITION_COST_KEY:
+                elif col == self.ACQUISITION_COSTS_KEY:
                     costs = temp.apply(
-                        self.compute_acquisition_cost, axis=1)
+                        self.compute_acquisition_costs, axis=1)
                     temp = temp.loc[costs.sort_values(ascending=asc).index]
 
-                elif col == self.ADMINISTRATION_COST_KEY:
+                elif col == self.ADMINISTRATION_COSTS_KEY:
                     costs = temp.apply(
-                        self.compute_administration_cost, axis=1)
+                        self.compute_administration_costs, axis=1)
                     temp = temp.loc[costs.sort_values(ascending=asc).index]
 
                 else:
@@ -430,10 +431,10 @@ class Finances:
         elif col == self.ACQUISITION_HOURS_KEY:
             cell = self.get_floattext(row[col], self.ACQUISITION_HOURS_KEY)
 
-        elif col == self.ACQUISITION_COST_KEY:
-            value = self.compute_acquisition_cost(row)
+        elif col == self.ACQUISITION_COSTS_KEY:
+            value = self.compute_acquisition_costs(row)
             cell = self.get_cost_label(
-                f"{value:,.2f}", self.ACQUISITION_COST_KEY)
+                f"{value:,.2f}", self.ACQUISITION_COSTS_KEY)
             self.acquisition_cost_labels[idx] = cell
 
         elif col == self.ADMINISTRATION_HOURS_KEY:
@@ -445,10 +446,10 @@ class Finances:
             cell = self.get_cost_label(text, self.ADMINISTRATION_HOURS_KEY)
             self.administration_hours_labels[idx] = cell
 
-        elif col == self.ADMINISTRATION_COST_KEY:
-            value = self.compute_administration_cost(row)
+        elif col == self.ADMINISTRATION_COSTS_KEY:
+            value = self.compute_administration_costs(row)
             cell = self.get_cost_label(
-                f"{value:,.2f}", self.ADMINISTRATION_COST_KEY)
+                f"{value:,.2f}", self.ADMINISTRATION_COSTS_KEY)
             self.administration_cost_labels[idx] = cell
 
         else:
@@ -487,16 +488,16 @@ class Finances:
                     if idx in self.administration_hours_labels:
                         self.administration_hours_labels[idx].value = (
                             f"{admin_hours:.2f}")
-                    self.update_administration_cost_label(idx)
+                    self.update_administration_costs_label(idx)
 
                 # update AFTER setting the new value!
                 if col in (self.HOURLY_RATE_KEY,
                            self.ACQUISITION_HOURS_KEY):
-                    self.update_acquisition_cost_label(idx)
+                    self.update_acquisition_costs_label(idx)
 
                 if col in (self.HOURLY_RATE_KEY,
                            self.ADMINISTRATION_HOURS_KEY):
-                    self.update_administration_cost_label(idx)
+                    self.update_administration_costs_label(idx)
 
             return update
 
@@ -551,12 +552,36 @@ class Finances:
             else:
                 self.sort_buttons[col].description = "↕"
 
-        self.update_total_acquisition_expenses()
-        self.update_total_administration_expenses()
+        self.update_total_acquisition_costs()
+        self.update_total_administration_costs()
         self.update_remaining_budget()
+
+    def get_header_widget(self, text, widht_key):
+        # output border + output padding + padding in text fields
+        header_padding = "0px " + str(1 + 5 + 8) + "px"
+        return widgets.HTML(
+                value=(
+                    "<div style='text-align:center;line-height:1.0;'>"
+                    f"<b>{text}</b>"
+                    "</div>"
+                ),
+                layout=widgets.Layout(
+                    width=self.column_widths[widht_key],
+                    padding=header_padding,
+                    text_align="center"
+                ),
+                _dom_classes=["compact-header"]
+            )
 
     def show(self):
 
+        display(HTML("""
+        <style>
+            .compact-header {
+                --jp-widgets-inline-height: 18px;
+            }
+        </style>
+        """))
         # invisible output for triggering download
         self.download_output = widgets.Output()
 
@@ -566,24 +591,12 @@ class Finances:
             layout=widgets.Layout(padding="5px"))
 
         # --- column name header ---
-        # output border + output padding + padding in text fields
-        header_padding = "0px " + str(1 + 5 + 8) + "px"
         header_labels = [
-            widgets.Label(
-                self.COLUMNS[col],
-                layout=widgets.Layout(
-                    width=self.column_widths[col],
-                    font_weight='bold',
-                    padding=header_padding))
+            self.get_header_widget(self.COLUMNS[col], col)
             for col in self.COLUMNS.keys()
         ]
         header_labels.append(
-            widgets.Label(
-                self.ACTIONS,
-                layout=widgets.Layout(
-                    width=self.column_widths[self.ACTIONS],
-                    font_weight='bold',
-                    padding=header_padding))
+            self.get_header_widget(self.ACTIONS, self.ACTIONS)
         )
         header_row = widgets.HBox(
             header_labels, layout=widgets.Layout(padding="5px"))
