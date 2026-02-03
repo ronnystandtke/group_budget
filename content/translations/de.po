@@ -166,7 +166,7 @@ msgstr "Verbleibendes Budget"
 
 #: ../Visualization.py:87
 msgid "Budget Flow Analysis"
-msgstr "Budget Flow Analysis"
+msgstr "Budgetfluss-Analyse"
 
 #: ../Visualization.py:88
 msgid "Utilization: {utilization_percentage:.1f}% | Budget: {budget:,.2f} CHF"
