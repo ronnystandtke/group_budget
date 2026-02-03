@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-02 19:01+0100\n"
+"POT-Creation-Date: 2026-02-03 14:04+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,99 +17,99 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../Finances.py:26
+#: ../Finances.py:27
 msgid "Open"
 msgstr ""
 
-#: ../Finances.py:29
+#: ../Finances.py:30
 msgid "Save"
 msgstr ""
 
-#: ../Finances.py:43
+#: ../Finances.py:44
 msgid "Total Budget (CHF):"
 msgstr ""
 
-#: ../Finances.py:54
+#: ../Finances.py:59
 msgid "Acquisition Costs (CHF):"
 msgstr ""
 
-#: ../Finances.py:60
+#: ../Finances.py:65
 msgid "Administative Costs (CHF):"
 msgstr ""
 
-#: ../Finances.py:66
+#: ../Finances.py:71
 msgid "Remaining Budget (CHF):"
 msgstr ""
 
-#: ../Finances.py:84
+#: ../Finances.py:89
 msgid "Name"
 msgstr ""
 
-#: ../Finances.py:85
+#: ../Finances.py:90
 msgid "Role"
 msgstr ""
 
-#: ../Finances.py:86
+#: ../Finances.py:91
 msgid "Hourly<br>Rate<br>(CHF)"
 msgstr ""
 
-#: ../Finances.py:87
+#: ../Finances.py:92
 msgid "Employment<br>(%)"
 msgstr ""
 
-#: ../Finances.py:89
+#: ../Finances.py:94
 msgid "Annual<br>Working<br>Hours<br>(h)"
 msgstr ""
 
-#: ../Finances.py:90
+#: ../Finances.py:95
 msgid "Research<br>(%)"
 msgstr ""
 
-#: ../Finances.py:91
+#: ../Finances.py:96
 msgid "Research<br>(h)"
 msgstr ""
 
-#: ../Finances.py:92
+#: ../Finances.py:97
 msgid "Acquisition<br>(h)"
 msgstr ""
 
-#: ../Finances.py:93
+#: ../Finances.py:98
 msgid "Acquisition<br>(CHF)"
 msgstr ""
 
-#: ../Finances.py:94
+#: ../Finances.py:99
 msgid "Administration<br>(h)"
 msgstr ""
 
-#: ../Finances.py:96
+#: ../Finances.py:101
 msgid "Administration<br>(CHF)"
 msgstr ""
 
-#: ../Finances.py:97
+#: ../Finances.py:102
 msgid "Public<br>Funds<br>(CHF)"
 msgstr ""
 
-#: ../Finances.py:102
+#: ../Finances.py:107
 msgid "Lecturer"
 msgstr ""
 
-#: ../Finances.py:103
+#: ../Finances.py:108
 msgid "Scientific Staff"
 msgstr ""
 
-#: ../Finances.py:104
+#: ../Finances.py:109
 msgid "Research Assistant"
 msgstr ""
 
-#: ../Finances.py:111
+#: ../Finances.py:116
 msgid "Actions"
 msgstr ""
 
-#: ../Finances.py:166
+#: ../Finances.py:171
 msgid "Add"
 msgstr ""
 
-#: ../Finances.py:182
+#: ../Finances.py:187
 msgid "Filter"
 msgstr ""
 
@@ -130,4 +130,32 @@ msgid ""
 "                https://jupyterlite.readthedocs.io/en/latest/howto/configure/"
 "advanced/service-worker.html</a>\n"
 "                "
+msgstr ""
+
+#: ../Visualization.py:27 ../Visualization.py:36
+msgid "Total Budget"
+msgstr ""
+
+#: ../Visualization.py:27 ../Visualization.py:38 ../Visualization.py:43
+msgid "Personnel Costs"
+msgstr ""
+
+#: ../Visualization.py:27 ../Visualization.py:45 ../Visualization.py:59
+msgid "Acquisition"
+msgstr ""
+
+#: ../Visualization.py:28 ../Visualization.py:45 ../Visualization.py:64
+msgid "Administration"
+msgstr ""
+
+#: ../Visualization.py:28 ../Visualization.py:38
+msgid "Remaining"
+msgstr ""
+
+#: ../Visualization.py:87
+msgid "Budget Flow Analysis"
+msgstr ""
+
+#: ../Visualization.py:88
+msgid "Utilization: {utilization_percentage:.1f}% | Budget: {budget:,.2f} CHF"
 msgstr ""

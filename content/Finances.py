@@ -1,5 +1,6 @@
 from Calculations import Calculations
 from FileHandler import FileHandler
+from Visualization import Visualization
 from IPython.display import display, HTML
 import gettext
 import ipywidgets as widgets
@@ -46,6 +47,10 @@ class Finances:
 
         self.total_budget.observe(
             lambda change: self.update_remaining_budget(),
+            names="value"
+        )
+        self.total_budget.observe(
+            lambda change: self.refresh_visualization(),
             names="value"
         )
 
@@ -201,6 +206,10 @@ class Finances:
         ))
 
         self.output_inner = widgets.VBox(layout=widgets.Layout(padding="5px"))
+
+        self.visualization = Visualization()
+        self.visualization_output = widgets.Output()
+
         with self.output:
             display(self.output_inner)
 
@@ -254,6 +263,7 @@ class Finances:
 
             self.upload_button.value = ()
             self.upload_button._counter = 0
+
         except Exception:
             print(traceback.format_exc())
             with self.output:
@@ -602,21 +612,25 @@ class Finances:
 
             if col == self.NAME_KEY:
                 self.df.at[idx, col] = new_value
+                self.refresh_visualization()
 
             elif col == self.ROLE_KEY:
                 self.handle_role_update(idx, col, new_value)
 
             elif col == self.HOURLY_RATE_KEY:
                 self.handle_hourly_rate_update(idx, change)
+                self.refresh_visualization()
 
             elif col == self.EMPLOYMENT_PERCENTAGE_KEY:
                 self.handle_employment_percentage_update(idx, new_value)
+                self.refresh_visualization()
 
             elif col == self.RESEARCH_PERCENTAGE_KEY:
                 self.handle_research_percentage_update(idx, new_value)
 
             elif col == self.ACQUISITION_HOURS_KEY:
                 self.handle_acquisition_hours_update(idx, new_value)
+                self.refresh_visualization()
 
         except Exception:
             print(traceback.format_exc())
@@ -787,6 +801,12 @@ class Finances:
         self.update_total_administration_costs()
         self.update_remaining_budget()
 
+        self.refresh_visualization()
+
+    def refresh_visualization(self):
+        with self.visualization_output:
+            self.visualization.show(self)
+
     def get_header_widget(self, text, widht_key):
         # output border + output padding + padding in text fields
         header_padding = "0px " + str(1 + 5 + 8) + "px"
@@ -854,7 +874,8 @@ class Finances:
             self.remaining_budget,
             header_row,
             input_row,
-            self.output])
+            self.output,
+            self.visualization_output])
         container.layout.padding = "0px"
 
         # --- display program ---
