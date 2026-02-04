@@ -11,6 +11,7 @@ _ = gettext.gettext
 class Visualization:
 
     def show(self, finances):
+
         budget = finances.total_budget.value
         total_spent = finances.df[finances.PUBLIC_FUNDS_KEY].sum()
         remaining_budget = max(0, budget - total_spent)
@@ -66,16 +67,41 @@ class Visualization:
                 values.append(administration_costs)
 
         # --- plot ---
+
+        # custom colors
+        employee_color = "#D8E4E8"
+
+        node_colors = [
+            "#C76A2A",  # Total Budget
+            "#D89A5A",  # Personnel Costs
+            "#9DB7C9",  # Acquisition
+            "#B7CEDA",  # Administration
+            "#9DBFA6",  # Remaining
+        ]
+
+        node_colors.extend([employee_color] * len(sorted_names))
+
+        def with_alpha(hex_color, alpha=0.45):
+            h = hex_color.lstrip("#")
+            r, g, b = int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
+            return f"rgba({r},{g},{b},{alpha})"
+
+        link_colors = [with_alpha(node_colors[src]) for src in sources]
+
         fig = go.Figure(data=[go.Sankey(
             arrangement="fixed",
             node=dict(
                 label=all_labels,
+                color=node_colors,
+                pad=16,
+                thickness=15,
                 hovertemplate='%{label}<br>CHF %{value:,.2f}<extra></extra>'
             ),
             link=dict(
                 source=sources,
                 target=targets,
                 value=values,
+                color=link_colors,
                 hovertemplate=(
                     '%{source.label} → %{target.label}<br>'
                     'CHF %{value:,.2f}<extra></extra>'
