@@ -775,10 +775,15 @@ class Finances:
                 cells.append(cell)
 
             # delete button
+            # button_style="danger" seems to be too red...
+            # description="X🗑️❌✖✕ⓧ⊗⨯",
             btn = widgets.Button(
-                description="🗑️", button_style="danger",
+                description="✖",
                 layout=widgets.Layout(width=self.column_widths[self.ACTIONS]))
             btn.on_click(lambda b, i=idx: self.delete_row(i))
+            btn.style.button_color = "#C76A2A"
+            btn.style.text_color = "white"
+
             cells.append(btn)
 
             row_boxes.append(widgets.HBox(
