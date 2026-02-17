@@ -69,11 +69,11 @@ class Finances:
         )
 
         self.administrative_expenses = self.get_money_floattext(
-            0.0, _("Acquisition Costs (CHF):"), disabled=True
+            0.0, _("Administative Costs (CHF):"), disabled=True
         )
 
         self.remaining_budget = self.get_money_floattext(
-            0.0, _("Acquisition Costs (CHF):"), disabled=True
+            0.0, _("Remaining Budget (CHF):"), disabled=True
         )
 
         self.PUBLIC_FUNDS_KEY = "Public Funds (CHF)"
