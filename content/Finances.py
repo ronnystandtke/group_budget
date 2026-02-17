@@ -38,13 +38,9 @@ class Finances:
                 justify_content='flex-end',
                 text_align='right')
 
-        self.total_budget = widgets.FloatText(
-            value=0.0,
-            step=0.05,
-            description=_("Total Budget (CHF):"),
-            style=finances_style,
-            layout=finances_layout)
-
+        self.total_budget = self.get_money_floattext(
+            0.0, _("Total Budget (CHF):")
+        )
         self.total_budget.observe(
             lambda change: self.update_remaining_budget(),
             names="value"
@@ -54,24 +50,34 @@ class Finances:
             names="value"
         )
 
-        self.acquisition_expenses = widgets.FloatText(
-            disabled=True,
-            description=_("Acquisition Costs (CHF):"),
+        self.administration_percentage = widgets.FloatText(
+            min=0,
+            max=100,
+            step=1,
+            value=2,
+            description=_("Administration (%)"),
             style=finances_style,
-            layout=finances_layout)
+            layout=finances_layout
+        )
+        self.administration_percentage.observe(
+            self.handle_administration_percentage_update,
+            names="value"
+        )
 
-        self.administrative_expenses = widgets.FloatText(
-            disabled=True,
-            description=_("Administative Costs (CHF):"),
-            style=finances_style,
-            layout=finances_layout)
+        self.acquisition_expenses = self.get_money_floattext(
+            0.0, _("Acquisition Costs (CHF):"), disabled=True
+        )
 
-        self.remaining_budget = widgets.FloatText(
-            disabled=True,
-            description=_("Remaining Budget (CHF):"),
-            style=finances_style,
-            layout=widgets.Layout(width=finances_widget_width))
+        self.administrative_expenses = self.get_money_floattext(
+            0.0, _("Acquisition Costs (CHF):"), disabled=True
+        )
 
+        self.remaining_budget = self.get_money_floattext(
+            0.0, _("Acquisition Costs (CHF):"), disabled=True
+        )
+
+        self.PUBLIC_FUNDS_KEY = "Public Funds (CHF)"
+        self.ADMINISTRATION_PERCENTAGE_KEY = "Administration (%)"
         self.NAME_KEY = "Name"
         self.ROLE_KEY = "Role"
         self.HOURLY_RATE_KEY = "Hourly Rate (CHF)"
@@ -83,7 +89,6 @@ class Finances:
         self.ACQUISITION_COSTS_KEY = "Acquisition (CHF)"
         self.ADMINISTRATION_HOURS_KEY = "Administration (h)"
         self.ADMINISTRATION_COSTS_KEY = "Administration (CHF)"
-        self.PUBLIC_FUNDS_KEY = "Public Funds (CHF)"
 
         self.COLUMNS = {
             self.NAME_KEY: _("Name"),
@@ -213,6 +218,38 @@ class Finances:
         with self.output:
             display(self.output_inner)
 
+    def get_money_floattext(self, value, description, disabled=False):
+        return widgets.FloatText(
+            value=value,
+            step=0.05,
+            description=description,
+            readout_format=",.2f",
+            disabled=disabled,
+            style={
+                'description_width': "210px",
+                'text_align': 'right'
+            },
+            layout=widgets.Layout(width="400px")
+        )
+
+    def handle_administration_percentage_update(self, change):
+        for idx in self.df.index:
+            employment_percentage = (
+                self.df.at[idx, self.EMPLOYMENT_PERCENTAGE_KEY])
+
+            administration_hours = self.calculations.get_administration_hours(
+                employment_percentage,
+                change["new"]
+            )
+
+            self.df.at[idx, self.ADMINISTRATION_HOURS_KEY] = (
+                administration_hours)
+            self.update_administration_hours_label(idx)
+            self.update_administration_costs(idx)
+            self.update_public_funds(idx)
+
+        self.refresh_table()
+
     def get_name_text(self, value):
         return widgets.Text(value=value, layout=widgets.Layout(
             width=self.column_widths[self.NAME_KEY]))
@@ -256,9 +293,12 @@ class Finances:
         try:
             content = self.upload_button.value[0]["content"]
             json_data = self.file_handler.load_data(content)
-            self.total_budget.value = json_data[
-                self.file_handler.TOTAL_BUDGET_KEY]
-            self.df = pd.DataFrame(json_data[self.file_handler.EMPLOYEES_KEY])
+            self.total_budget.value = json_data.get(
+                self.file_handler.TOTAL_BUDGET_KEY, 100000)
+            self.administration_percentage.value = json_data.get(
+                self.file_handler.ADMINISTRATION_PERCENTAGE_KEY, 2)
+            self.df = pd.DataFrame(json_data.get(
+                self.file_handler.EMPLOYEES_KEY, []))
             self.refresh_table()
 
             self.upload_button.value = ()
@@ -270,10 +310,16 @@ class Finances:
                 print(traceback.format_exc())
 
     def save_data(self):
-        self.file_handler.save_data(
-            self.total_budget.value,
-            self.sort_df(self.df),
-            self.download_output)
+        try:
+            self.file_handler.save_data(
+                self.total_budget.value,
+                self.administration_percentage.value,
+                self.sort_df(self.df),
+                self.download_output)
+        except Exception:
+            print(traceback.format_exc())
+            with self.output:
+                print(traceback.format_exc())
 
     def reset_input_widgets(self):
         self.input_widgets[self.NAME_KEY].value = ""
@@ -401,7 +447,8 @@ class Finances:
                     employment_percentage = self.input_widgets[
                         self.EMPLOYMENT_PERCENTAGE_KEY].value
                     val = self.calculations.get_administration_hours(
-                        employment_percentage)
+                        employment_percentage,
+                        self.administration_percentage.value)
 
                 elif col == self.ADMINISTRATION_COSTS_KEY:
                     val = self.calculations.get_costs(
@@ -555,7 +602,8 @@ class Finances:
 
         # update administration hours
         administration_hours = (
-            self.calculations.get_administration_hours(new_value))
+            self.calculations.get_administration_hours(
+                new_value, self.administration_percentage.value))
         self.df.at[idx, self.ADMINISTRATION_HOURS_KEY] = administration_hours
         self.update_administration_hours_label(idx)
 
@@ -840,6 +888,9 @@ class Finances:
                 width: 30px !important;
                 min-width: 30px !important;
             }
+            .widget-text input, .widget-combobox input, input[type='number'] {
+                text-align: right !important;
+            }
         </style>
         """))
 
@@ -874,6 +925,7 @@ class Finances:
         container = widgets.VBox([
             button_row,
             self.total_budget,
+            self.administration_percentage,
             self.acquisition_expenses,
             self.administrative_expenses,
             self.remaining_budget,

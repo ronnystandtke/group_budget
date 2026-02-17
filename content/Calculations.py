@@ -2,7 +2,6 @@ class Calculations:
 
     def __init__(self) -> None:
         self.ANNUAL_WORKING_HOURS = 1940  # hours
-        self.ADMINISTRATION_FACTOR = 0.02
         self.known_hourly_rates = ["55", "69", "87", "89", "103", "117"]
 
     def get_annual_working_hours(self, employment_percentage):
@@ -13,9 +12,10 @@ class Calculations:
         return self._get_percentage(
             annual_working_hours, research_percentage)
 
-    def get_administration_hours(self, employment_percentage):
+    def get_administration_hours(
+            self, employment_percentage, administration_factor):
         return (self.get_annual_working_hours(employment_percentage) *
-                self.ADMINISTRATION_FACTOR)
+                administration_factor / 100)
 
     def get_float(self, value):
         try:

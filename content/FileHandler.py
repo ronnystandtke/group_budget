@@ -9,6 +9,7 @@ class FileHandler:
     def __init__(self) -> None:
         # main keys for our JSON file
         self.TOTAL_BUDGET_KEY = "total_budget"
+        self.ADMINISTRATION_PERCENTAGE_KEY = "administration_percentage"
         self.EMPLOYEES_KEY = "employees"
 
     def load_data(self, content):
@@ -19,27 +20,36 @@ class FileHandler:
             with self.output:
                 print(traceback.format_exc())
 
-    def save_data(self, total_budget, df, download_output):
+    def save_data(self, total_budget, administration_percentage,
+                  df, download_output):
 
-        data_to_export = {
-            self.TOTAL_BUDGET_KEY: total_budget,
-            self.EMPLOYEES_KEY: df.to_dict(orient='records')
-        }
+        try:
 
-        json_str = json.dumps(data_to_export, indent=2)
-        b64 = base64.b64encode(json_str.encode()).decode()
+            data_to_export = {
+                self.TOTAL_BUDGET_KEY: total_budget,
+                self.ADMINISTRATION_PERCENTAGE_KEY: administration_percentage,
+                self.EMPLOYEES_KEY: df.to_dict(orient='records')
+            }
 
-        html = f"""
-        <a id="download-link"
-           download="data.json"
-           href="data:text/json;base64,{b64}"
-           style="display:none;">
-        </a>
-        <script>
-            document.getElementById('download-link').click();
-        </script>
-        """
+            json_str = json.dumps(data_to_export, indent=2)
+            b64 = base64.b64encode(json_str.encode()).decode()
 
-        with download_output:
-            clear_output()
-            display(HTML(html))
+            html = f"""
+            <a id="download-link"
+            download="data.json"
+            href="data:text/json;base64,{b64}"
+            style="display:none;">
+            </a>
+            <script>
+                document.getElementById('download-link').click();
+            </script>
+            """
+
+            with download_output:
+                clear_output()
+                display(HTML(html))
+
+        except Exception:
+            print(traceback.format_exc())
+            with self.output:
+                print(traceback.format_exc())
