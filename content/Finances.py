@@ -50,6 +50,14 @@ class Finances:
             names="value"
         )
 
+        self.management_allowance = self.get_money_floattext(
+            0.0, _("Management Allowance (CHF):")
+        )
+        self.management_allowance.observe(
+            lambda change: self.update_management_allowance(),
+            names="value"
+        )
+
         self.administration_percentage = widgets.FloatText(
             min=0,
             max=100,
@@ -78,6 +86,8 @@ class Finances:
 
         self.PUBLIC_FUNDS_KEY = "Public Funds (CHF)"
         self.ADMINISTRATION_PERCENTAGE_KEY = "Administration (%)"
+        self.MANAGEMENT_ALLOWANCE_KEY = "Management Allowance (CHF)"
+        self.IS_MANAGEMENT_KEY = "Is Management"
         self.NAME_KEY = "Name"
         self.ROLE_KEY = "Role"
         self.HOURLY_RATE_KEY = "Hourly Rate (CHF)"
@@ -87,6 +97,7 @@ class Finances:
         self.RESEARCH_HOURS_KEY = "Research (h)"
         self.ACQUISITION_HOURS_KEY = "Acquisition (h)"
         self.ACQUISITION_COSTS_KEY = "Acquisition (CHF)"
+        self.MANAGEMENT_COSTS_KEY = "Management (CHF)"
         self.ADMINISTRATION_HOURS_KEY = "Administration (h)"
         self.ADMINISTRATION_COSTS_KEY = "Administration (CHF)"
 
@@ -101,6 +112,8 @@ class Finances:
             self.RESEARCH_HOURS_KEY: _("Research<br>(h)"),
             self.ACQUISITION_HOURS_KEY: _("Acquisition<br>(h)"),
             self.ACQUISITION_COSTS_KEY: _("Acquisition<br>(CHF)"),
+            self.IS_MANAGEMENT_KEY: _("Management"),
+            self.MANAGEMENT_COSTS_KEY: _("Management<br>(CHF)"),
             self.ADMINISTRATION_HOURS_KEY: _("Administration<br>(h)"),
             self.ADMINISTRATION_COSTS_KEY: (
                 _("Administration<br>(CHF)")),
@@ -132,6 +145,8 @@ class Finances:
             self.RESEARCH_HOURS_KEY: "100px",
             self.ACQUISITION_HOURS_KEY: "90px",
             self.ACQUISITION_COSTS_KEY: "70px",
+            self.IS_MANAGEMENT_KEY: "120px",
+            self.MANAGEMENT_COSTS_KEY: "120px",
             self.ADMINISTRATION_HOURS_KEY: "120px",
             self.ADMINISTRATION_COSTS_KEY: "120px",
             self.PUBLIC_FUNDS_KEY: "120px",
@@ -159,6 +174,10 @@ class Finances:
                 self.get_floattext(0, self.ACQUISITION_HOURS_KEY),
             self.ACQUISITION_COSTS_KEY:
                 self.get_cost_label("", self.ACQUISITION_COSTS_KEY),
+            self.IS_MANAGEMENT_KEY:
+                self.get_management_checkbox(False),
+            self.MANAGEMENT_COSTS_KEY:
+                self.get_cost_label("", self.MANAGEMENT_COSTS_KEY),
             self.ADMINISTRATION_HOURS_KEY:
                 self.get_cost_label("", self.ADMINISTRATION_HOURS_KEY),
             self.ADMINISTRATION_COSTS_KEY:
@@ -183,6 +202,7 @@ class Finances:
         self.annual_working_hours_labels = {}
         self.research_hours_labels = {}
         self.acquisition_cost_labels = {}
+        self.management_cost_labels = {}
         self.administration_hours_labels = {}
         self.administration_cost_labels = {}
         self.public_funds_labels = {}
@@ -234,13 +254,12 @@ class Finances:
 
     def handle_administration_percentage_update(self, change):
         for idx in self.df.index:
+            is_management = self.df.at[idx, self.IS_MANAGEMENT_KEY]
             employment_percentage = (
                 self.df.at[idx, self.EMPLOYMENT_PERCENTAGE_KEY])
 
             administration_hours = self.calculations.get_administration_hours(
-                employment_percentage,
-                change["new"]
-            )
+                is_management, employment_percentage, change["new"])
 
             self.df.at[idx, self.ADMINISTRATION_HOURS_KEY] = (
                 administration_hours)
@@ -259,6 +278,13 @@ class Finances:
             value=value,
             options=self.ROLES.values(),
             layout=widgets.Layout(width=self.column_widths[self.ROLE_KEY]))
+
+    def get_management_checkbox(self, value):
+        return widgets.Checkbox(
+            value=value,
+            layout=widgets.Layout(
+                width=self.column_widths[self.IS_MANAGEMENT_KEY])
+            )
 
     def get_hourly_rate_combobox(self, value):
         return widgets.Combobox(
@@ -286,6 +312,18 @@ class Finances:
                 justify_content="flex-end",
                 width=self.column_widths[width_key]))
 
+    def ensure_columns(self):
+        defaults = {
+            self.IS_MANAGEMENT_KEY: False,
+            self.MANAGEMENT_COSTS_KEY: 0,
+        }
+
+        for col, default in defaults.items():
+            if col not in self.df.columns:
+                self.df[col] = default
+
+            self.df[col] = self.df[col].fillna(default)
+
     def load_data(self, change):
         if not change["new"]:
             return
@@ -294,11 +332,14 @@ class Finances:
             content = self.upload_button.value[0]["content"]
             json_data = self.file_handler.load_data(content)
             self.total_budget.value = json_data.get(
-                self.file_handler.TOTAL_BUDGET_KEY, 100000)
+                self.file_handler.TOTAL_BUDGET_KEY, 0)
+            self.management_allowance.value = json_data.get(
+                self.file_handler.MANAGEMENT_ALLOWANCE_KEY, 0)
             self.administration_percentage.value = json_data.get(
                 self.file_handler.ADMINISTRATION_PERCENTAGE_KEY, 2)
             self.df = pd.DataFrame(json_data.get(
                 self.file_handler.EMPLOYEES_KEY, []))
+            self.ensure_columns()
             self.refresh_table()
 
             self.upload_button.value = ()
@@ -313,6 +354,7 @@ class Finances:
         try:
             self.file_handler.save_data(
                 self.total_budget.value,
+                self.management_allowance.value,
                 self.administration_percentage.value,
                 self.sort_df(self.df),
                 self.download_output)
@@ -340,6 +382,9 @@ class Finances:
     def compute_public_funds(self, row):
         return self.calculations.get_public_funds(
             self.compute_acquisition_costs(row),
+            self.calculations.get_management_share(
+                self.management_allowance.value,
+                self.df, self.IS_MANAGEMENT_KEY, row),
             self.compute_administration_costs(row))
 
     def update_annual_working_hours_label(self, idx):
@@ -366,6 +411,16 @@ class Finances:
         value = self.compute_acquisition_costs(row)
         self.acquisition_cost_labels[idx].value = f"{value:,.2f}"
         self.update_total_acquisition_costs()
+
+    def update_management_costs_label(self, idx):
+        if idx not in self.management_cost_labels:
+            return
+
+        row = self.df.loc[idx]
+        value = self.calculations.get_management_share(
+            self.management_allowance.value,
+            self.df, self.IS_MANAGEMENT_KEY, row)
+        self.management_cost_labels[idx].value = f"{value:,.2f}"
 
     def update_administration_hours_label(self, idx):
         if idx not in self.administration_hours_labels:
@@ -404,8 +459,15 @@ class Finances:
 
     def update_remaining_budget(self):
         self.remaining_budget.value = self.calculations.get_remaining_budget(
-            self.total_budget.value, self.acquisition_expenses.value,
+            self.total_budget.value,
+            self.acquisition_expenses.value,
+            self.management_allowance.value,
             self.administrative_expenses.value)
+
+    def update_management_allowance(self):
+        self.spread_management_allowance()
+        self.update_remaining_budget()
+        self.refresh_visualization()
 
     # adds a new row to the DataFrame df
     def add_row(self):
@@ -443,11 +505,18 @@ class Finances:
                         new_row[self.HOURLY_RATE_KEY],
                         new_row[self.ACQUISITION_HOURS_KEY])
 
+                elif col == self.MANAGEMENT_COSTS_KEY:
+                    val = self.calculations.get_management_share(
+                        self.management_allowance.value, self.df,
+                        self.IS_MANAGEMENT_KEY, new_row)
+
                 elif col == self.ADMINISTRATION_HOURS_KEY:
+                    is_management = self.input_widgets[
+                        self.IS_MANAGEMENT_KEY].value
                     employment_percentage = self.input_widgets[
                         self.EMPLOYMENT_PERCENTAGE_KEY].value
                     val = self.calculations.get_administration_hours(
-                        employment_percentage,
+                        is_management, employment_percentage,
                         self.administration_percentage.value)
 
                 elif col == self.ADMINISTRATION_COSTS_KEY:
@@ -458,6 +527,7 @@ class Finances:
                 elif col == self.PUBLIC_FUNDS_KEY:
                     val = self.calculations.get_public_funds(
                         new_row[self.ACQUISITION_COSTS_KEY],
+                        new_row[self.MANAGEMENT_COSTS_KEY],
                         new_row[self.ADMINISTRATION_COSTS_KEY])
 
                 new_row[col] = val
@@ -560,6 +630,29 @@ class Finances:
     def handle_role_update(self, idx, col, new_value):
         self.df.at[idx, col] = self.REVERSED_ROLES.get(new_value, new_value)
 
+    def spread_management_allowance(self):
+        for idx in self.df.index:
+            self.df.at[idx, self.MANAGEMENT_COSTS_KEY] = (
+                    self.calculations.get_management_share(
+                        self.management_allowance.value, self.df,
+                        self.IS_MANAGEMENT_KEY, self.df.loc[idx]))
+
+            self.update_administration_hours(
+                idx, self.df.at[idx, self.EMPLOYMENT_PERCENTAGE_KEY])
+
+            self.update_administration_costs(idx)
+            self.update_management_costs_label(idx)
+            self.update_public_funds(idx)
+
+    def handle_management_update(self, idx, col, new_value):
+        self.df.at[idx, self.IS_MANAGEMENT_KEY] = new_value
+
+        self.spread_management_allowance()
+
+        self.update_total_administration_costs()
+        self.update_remaining_budget()
+        self.refresh_visualization()
+
     def handle_hourly_rate_update(self, idx, change):
 
         value = None
@@ -601,11 +694,7 @@ class Finances:
         self.update_research_hours_label(idx)
 
         # update administration hours
-        administration_hours = (
-            self.calculations.get_administration_hours(
-                new_value, self.administration_percentage.value))
-        self.df.at[idx, self.ADMINISTRATION_HOURS_KEY] = administration_hours
-        self.update_administration_hours_label(idx)
+        self.update_administration_hours(idx, new_value)
 
         # update administration cost
         self.update_administration_costs(idx)
@@ -613,9 +702,20 @@ class Finances:
         # update public funds
         public_funds = self.calculations.get_public_funds(
             self.df.at[idx, self.ACQUISITION_COSTS_KEY],
+            self.df.at[idx, self.MANAGEMENT_COSTS_KEY],
             self.df.at[idx, self.ADMINISTRATION_COSTS_KEY])
         self.df.at[idx, self.PUBLIC_FUNDS_KEY] = public_funds
         self.update_public_funds_label(idx)
+
+    def update_administration_hours(self, idx, employment_percentage):
+        is_management = float(
+            self.df.at[idx, self.IS_MANAGEMENT_KEY])
+        administration_hours = (
+            self.calculations.get_administration_hours(
+                is_management, employment_percentage,
+                self.administration_percentage.value))
+        self.df.at[idx, self.ADMINISTRATION_HOURS_KEY] = administration_hours
+        self.update_administration_hours_label(idx)
 
     def handle_research_percentage_update(self, idx, new_value):
 
@@ -650,6 +750,7 @@ class Finances:
     def update_public_funds(self, idx):
         public_funds = self.calculations.get_public_funds(
             self.df.at[idx, self.ACQUISITION_COSTS_KEY],
+            self.df.at[idx, self.MANAGEMENT_COSTS_KEY],
             self.df.at[idx, self.ADMINISTRATION_COSTS_KEY])
         self.df.at[idx, self.PUBLIC_FUNDS_KEY] = public_funds
         self.update_public_funds_label(idx)
@@ -678,6 +779,10 @@ class Finances:
 
             elif col == self.ACQUISITION_HOURS_KEY:
                 self.handle_acquisition_hours_update(idx, new_value)
+                self.refresh_visualization()
+
+            elif col == self.IS_MANAGEMENT_KEY:
+                self.handle_management_update(idx, col, new_value)
                 self.refresh_visualization()
 
         except Exception:
@@ -709,6 +814,13 @@ class Finances:
         value = self.compute_acquisition_costs(row)
         cell = self.get_cost_label(f"{value:,.2f}", self.ACQUISITION_COSTS_KEY)
         self.acquisition_cost_labels[idx] = cell
+        return cell
+
+    def get_cell_management_costs(self, idx, row):
+        value = float(row[self.MANAGEMENT_COSTS_KEY])
+        cell = self.get_cost_label(
+            f"{value:,.2f}", self.MANAGEMENT_COSTS_KEY)
+        self.management_cost_labels[idx] = cell
         return cell
 
     def get_cell_administration_hours(self, idx, row):
@@ -744,6 +856,9 @@ class Finances:
         elif col == self.ROLE_KEY:
             cell = self.get_role_dropdown(self.ROLES[row[col]])
 
+        elif col == self.IS_MANAGEMENT_KEY:
+            cell = self.get_management_checkbox(row.get(col, False))
+
         elif col == self.HOURLY_RATE_KEY:
             cell = self.get_hourly_rate_combobox(row[col])
 
@@ -768,6 +883,10 @@ class Finances:
 
         elif col == self.ACQUISITION_COSTS_KEY:
             cell = self.get_cell_acquisistion_costs(idx, row)
+            observing = False
+
+        elif col == self.MANAGEMENT_COSTS_KEY:
+            cell = self.get_cell_management_costs(idx, row)
             observing = False
 
         elif col == self.ADMINISTRATION_HOURS_KEY:
@@ -797,6 +916,7 @@ class Finances:
         self.annual_working_hours_labels.clear()
         self.research_hours_labels.clear()
         self.acquisition_cost_labels.clear()
+        self.management_cost_labels.clear()
         self.administration_hours_labels.clear()
         self.administration_cost_labels.clear()
         self.public_funds_labels.clear()
@@ -925,6 +1045,7 @@ class Finances:
         container = widgets.VBox([
             button_row,
             self.total_budget,
+            self.management_allowance,
             self.administration_percentage,
             self.acquisition_expenses,
             self.administrative_expenses,

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-03 14:04+0100\n"
+"POT-Creation-Date: 2026-02-18 02:39+0100\n"
 "PO-Revision-Date: 2026-01-31 18:51+0100\n"
 "Last-Translator: Ronny Standtke <ronny.standtke@gmx.net>\n"
 "Language-Team: German <de@li.org>\n"
@@ -24,91 +24,108 @@ msgstr "Öffnen"
 msgid "Save"
 msgstr "Speichern"
 
-#: ../Finances.py:44
+#: ../Finances.py:42
 msgid "Total Budget (CHF):"
 msgstr "Gesamtbudget (CHF)"
 
-#: ../Finances.py:59
+#: ../Finances.py:54
+msgid "Management Allowance (CHF):"
+msgstr "Leitungspauschale (CHF)"
+
+#: ../Finances.py:66
+msgid "Administration (%)"
+msgstr ""
+
+#: ../Finances.py:76
 msgid "Acquisition Costs (CHF):"
 msgstr "Akquisekosten (CHF)"
 
-#: ../Finances.py:65
+#: ../Finances.py:80
 msgid "Administative Costs (CHF):"
 msgstr "Administrationskosten (CHF)"
 
-#: ../Finances.py:71
+#: ../Finances.py:84
 msgid "Remaining Budget (CHF):"
 msgstr "Verbleibendes Budget (CHF)"
 
-#: ../Finances.py:89
+#: ../Finances.py:105
 msgid "Name"
 msgstr ""
 
-#: ../Finances.py:90
+#: ../Finances.py:106
 msgid "Role"
 msgstr "Rolle"
 
-#: ../Finances.py:91
+#: ../Finances.py:107
 msgid "Hourly<br>Rate<br>(CHF)"
 msgstr "Stundensatz<br>(CHF)"
 
-#: ../Finances.py:92
+#: ../Finances.py:108
 msgid "Employment<br>(%)"
 msgstr "Beschäftigungsgrad<br>(%)"
 
-#: ../Finances.py:94
+#: ../Finances.py:110
 msgid "Annual<br>Working<br>Hours<br>(h)"
 msgstr "Jahres-<br>arbeits-<br>zeit<br>(h)"
 
-#: ../Finances.py:95
+#: ../Finances.py:111
 msgid "Research<br>(%)"
 msgstr "Forschung<br>(%)"
 
-#: ../Finances.py:96
+#: ../Finances.py:112
 msgid "Research<br>(h)"
 msgstr "Forschung<br>(h)"
 
-#: ../Finances.py:97
+#: ../Finances.py:113
 msgid "Acquisition<br>(h)"
 msgstr "Akquise<br>(h)"
 
-#: ../Finances.py:98
+#: ../Finances.py:114
 msgid "Acquisition<br>(CHF)"
 msgstr "Akquise<br>(CHF)"
 
-#: ../Finances.py:99
+#: ../Finances.py:115 ../Visualization.py:29 ../Visualization.py:51
+#: ../Visualization.py:78
+msgid "Management"
+msgstr ""
+
+#: ../Finances.py:116
+msgid "Management<br>(CHF)"
+msgstr ""
+
+#: ../Finances.py:117
 msgid "Administration<br>(h)"
 msgstr ""
 
-#: ../Finances.py:101
+#: ../Finances.py:119
 msgid "Administration<br>(CHF)"
 msgstr ""
 
-#: ../Finances.py:102
+#: ../Finances.py:120
 msgid "Public<br>Funds<br>(CHF)"
 msgstr "Staatsmittel<br>(CHF)"
 
-#: ../Finances.py:107
+#: ../Finances.py:125
 msgid "Lecturer"
 msgstr "Dozent(in)"
 
-#: ../Finances.py:108
+#: ../Finances.py:126
 msgid "Scientific Staff"
 msgstr "WiMa"
 
-#: ../Finances.py:109
+#: ../Finances.py:127
 msgid "Research Assistant"
 msgstr "Assistent(in)"
 
-#: ../Finances.py:116
+#: ../Finances.py:134
 msgid "Actions"
 msgstr "Aktionen"
 
-#: ../Finances.py:171
+#: ../Finances.py:195
 msgid "Add"
 msgstr "Hinzufügen"
 
-#: ../Finances.py:187
+#: ../Finances.py:212
 msgid "Filter"
 msgstr ""
 
@@ -144,30 +161,31 @@ msgstr ""
 "advanced/service-worker.html</a>\n"
 "                "
 
-#: ../Visualization.py:27 ../Visualization.py:36
+#: ../Visualization.py:28 ../Visualization.py:38
 msgid "Total Budget"
 msgstr "Gesamtbudget"
 
-#: ../Visualization.py:27 ../Visualization.py:38 ../Visualization.py:43
+#: ../Visualization.py:28 ../Visualization.py:40 ../Visualization.py:45
+#: ../Visualization.py:46 ../Visualization.py:47
 msgid "Personnel Costs"
 msgstr "Personalkosten"
 
-#: ../Visualization.py:27 ../Visualization.py:45 ../Visualization.py:59
+#: ../Visualization.py:28 ../Visualization.py:49 ../Visualization.py:68
 msgid "Acquisition"
 msgstr "Akquise"
 
-#: ../Visualization.py:28 ../Visualization.py:45 ../Visualization.py:64
+#: ../Visualization.py:29 ../Visualization.py:50 ../Visualization.py:73
 msgid "Administration"
 msgstr ""
 
-#: ../Visualization.py:28 ../Visualization.py:38
+#: ../Visualization.py:29 ../Visualization.py:40
 msgid "Remaining"
 msgstr "Verbleibendes Budget"
 
-#: ../Visualization.py:87
+#: ../Visualization.py:136
 msgid "Budget Flow Analysis"
 msgstr "Budgetfluss-Analyse"
 
-#: ../Visualization.py:88
+#: ../Visualization.py:137
 msgid "Utilization: {utilization_percentage:.1f}% | Budget: {budget:,.2f} CHF"
 msgstr "Auschöpfung: {utilization_percentage:.1f}% | Budget: {budget:,.2f} CHF"

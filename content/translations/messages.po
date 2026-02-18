@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-03 14:23+0100\n"
+"POT-Creation-Date: 2026-02-18 02:39+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,91 +25,108 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
-#: ../Finances.py:44
+#: ../Finances.py:42
 msgid "Total Budget (CHF):"
 msgstr ""
 
-#: ../Finances.py:59
+#: ../Finances.py:54
+msgid "Management Allowance (CHF):"
+msgstr ""
+
+#: ../Finances.py:66
+msgid "Administration (%)"
+msgstr ""
+
+#: ../Finances.py:76
 msgid "Acquisition Costs (CHF):"
 msgstr ""
 
-#: ../Finances.py:65
+#: ../Finances.py:80
 msgid "Administative Costs (CHF):"
 msgstr ""
 
-#: ../Finances.py:71
+#: ../Finances.py:84
 msgid "Remaining Budget (CHF):"
 msgstr ""
 
-#: ../Finances.py:89
+#: ../Finances.py:105
 msgid "Name"
 msgstr ""
 
-#: ../Finances.py:90
+#: ../Finances.py:106
 msgid "Role"
 msgstr ""
 
-#: ../Finances.py:91
+#: ../Finances.py:107
 msgid "Hourly<br>Rate<br>(CHF)"
 msgstr ""
 
-#: ../Finances.py:92
+#: ../Finances.py:108
 msgid "Employment<br>(%)"
 msgstr ""
 
-#: ../Finances.py:94
+#: ../Finances.py:110
 msgid "Annual<br>Working<br>Hours<br>(h)"
 msgstr ""
 
-#: ../Finances.py:95
+#: ../Finances.py:111
 msgid "Research<br>(%)"
 msgstr ""
 
-#: ../Finances.py:96
+#: ../Finances.py:112
 msgid "Research<br>(h)"
 msgstr ""
 
-#: ../Finances.py:97
+#: ../Finances.py:113
 msgid "Acquisition<br>(h)"
 msgstr ""
 
-#: ../Finances.py:98
+#: ../Finances.py:114
 msgid "Acquisition<br>(CHF)"
 msgstr ""
 
-#: ../Finances.py:99
-msgid "Administration<br>(h)"
-msgstr ""
-
-#: ../Finances.py:101
-msgid "Administration<br>(CHF)"
-msgstr ""
-
-#: ../Finances.py:102
-msgid "Public<br>Funds<br>(CHF)"
-msgstr ""
-
-#: ../Finances.py:107
-msgid "Lecturer"
-msgstr ""
-
-#: ../Finances.py:108
-msgid "Scientific Staff"
-msgstr ""
-
-#: ../Finances.py:109
-msgid "Research Assistant"
+#: ../Finances.py:115 ../Visualization.py:29 ../Visualization.py:51
+#: ../Visualization.py:78
+msgid "Management"
 msgstr ""
 
 #: ../Finances.py:116
+msgid "Management<br>(CHF)"
+msgstr ""
+
+#: ../Finances.py:117
+msgid "Administration<br>(h)"
+msgstr ""
+
+#: ../Finances.py:119
+msgid "Administration<br>(CHF)"
+msgstr ""
+
+#: ../Finances.py:120
+msgid "Public<br>Funds<br>(CHF)"
+msgstr ""
+
+#: ../Finances.py:125
+msgid "Lecturer"
+msgstr ""
+
+#: ../Finances.py:126
+msgid "Scientific Staff"
+msgstr ""
+
+#: ../Finances.py:127
+msgid "Research Assistant"
+msgstr ""
+
+#: ../Finances.py:134
 msgid "Actions"
 msgstr ""
 
-#: ../Finances.py:171
+#: ../Finances.py:195
 msgid "Add"
 msgstr ""
 
-#: ../Finances.py:187
+#: ../Finances.py:212
 msgid "Filter"
 msgstr ""
 
@@ -132,30 +149,31 @@ msgid ""
 "                "
 msgstr ""
 
-#: ../Visualization.py:27 ../Visualization.py:36
+#: ../Visualization.py:28 ../Visualization.py:38
 msgid "Total Budget"
 msgstr ""
 
-#: ../Visualization.py:27 ../Visualization.py:38 ../Visualization.py:43
+#: ../Visualization.py:28 ../Visualization.py:40 ../Visualization.py:45
+#: ../Visualization.py:46 ../Visualization.py:47
 msgid "Personnel Costs"
 msgstr ""
 
-#: ../Visualization.py:27 ../Visualization.py:45 ../Visualization.py:59
+#: ../Visualization.py:28 ../Visualization.py:49 ../Visualization.py:68
 msgid "Acquisition"
 msgstr ""
 
-#: ../Visualization.py:28 ../Visualization.py:45 ../Visualization.py:64
+#: ../Visualization.py:29 ../Visualization.py:50 ../Visualization.py:73
 msgid "Administration"
 msgstr ""
 
-#: ../Visualization.py:28 ../Visualization.py:38
+#: ../Visualization.py:29 ../Visualization.py:40
 msgid "Remaining"
 msgstr ""
 
-#: ../Visualization.py:87
+#: ../Visualization.py:136
 msgid "Budget Flow Analysis"
 msgstr ""
 
-#: ../Visualization.py:88
+#: ../Visualization.py:137
 msgid "Utilization: {utilization_percentage:.1f}% | Budget: {budget:,.2f} CHF"
 msgstr ""

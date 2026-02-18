@@ -26,7 +26,8 @@ class Visualization:
         # --- nodes and positioning ---
         all_labels = (
             [_("Total Budget"), _("Personnel Costs"), _("Acquisition"),
-             _("Administration"), _("Remaining")] + sorted_names)
+             _("Administration"), _("Management"), _("Remaining")] +
+            sorted_names)
         label_map = {name: i for i, name in enumerate(all_labels)}
 
         # --- links ---
@@ -40,21 +41,28 @@ class Visualization:
         values.extend([total_spent, remaining_budget])
 
         # personnel cost splitting
-        sources.extend(
-            [label_map[_("Personnel Costs")], label_map[_("Personnel Costs")]])
-        targets.extend(
-            [label_map[_("Acquisition")], label_map[_("Administration")]])
+        sources.extend([
+            label_map[_("Personnel Costs")],
+            label_map[_("Personnel Costs")],
+            label_map[_("Personnel Costs")]])
+        targets.extend([
+            label_map[_("Acquisition")],
+            label_map[_("Administration")],
+            label_map[_("Management")]])
         values.extend(
             [finances.df[finances.ACQUISITION_COSTS_KEY].sum(),
-             finances.df[finances.ADMINISTRATION_COSTS_KEY].sum()])
+             finances.df[finances.ADMINISTRATION_COSTS_KEY].sum(),
+             finances.df[finances.MANAGEMENT_COSTS_KEY].sum()])
 
-        # # acquisition and administration cost splitting
+        # acquisition, administration and management cost splitting
         name_df = finances.df.set_index(finances.NAME_KEY)
         for name in sorted_names:
             acquisition_costs = name_df.loc[
                 name, finances.ACQUISITION_COSTS_KEY]
             administration_costs = name_df.loc[
                 name, finances.ADMINISTRATION_COSTS_KEY]
+            management_costs = name_df.loc[
+                name, finances.MANAGEMENT_COSTS_KEY]
 
             if acquisition_costs > 0:
                 sources.append(label_map[_("Acquisition")])
@@ -66,6 +74,11 @@ class Visualization:
                 targets.append(label_map[name])
                 values.append(administration_costs)
 
+            if management_costs > 0:
+                sources.append(label_map[_("Management")])
+                targets.append(label_map[name])
+                values.append(management_costs)
+
         # --- plot ---
 
         # custom colors
@@ -76,7 +89,17 @@ class Visualization:
             "#D89A5A",  # Personnel Costs
             "#9DB7C9",  # Acquisition
             "#B7CEDA",  # Administration
+            "#B9CEDA",  # Management
             "#9DBFA6",  # Remaining
+        ]
+
+        node_colors = [
+            "#C76A2A",  # Total Budget (warm orange)
+            "#E6B98C",  # Personnel Costs (soft sand)
+            "#5BAE6E",  # Acquisition (green)
+            "#9E9E9E",  # Administration (neutral grey)
+            "#4A6FA5",  # Management (calm blue)
+            "#3C8D5A",  # Remaining (strong green)
         ]
 
         node_colors.extend([employee_color] * len(sorted_names))

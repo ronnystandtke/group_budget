@@ -8,8 +8,9 @@ class FileHandler:
 
     def __init__(self) -> None:
         # main keys for our JSON file
-        self.TOTAL_BUDGET_KEY = "total_budget"
-        self.ADMINISTRATION_PERCENTAGE_KEY = "administration_percentage"
+        self.TOTAL_BUDGET_KEY = "totalBudget"
+        self.MANAGEMENT_ALLOWANCE_KEY = "managementAllowance"
+        self.ADMINISTRATION_PERCENTAGE_KEY = "administrationPercentage"
         self.EMPLOYEES_KEY = "employees"
 
     def load_data(self, content):
@@ -20,13 +21,14 @@ class FileHandler:
             with self.output:
                 print(traceback.format_exc())
 
-    def save_data(self, total_budget, administration_percentage,
-                  df, download_output):
+    def save_data(self, total_budget, management_allowance,
+                  administration_percentage, df, download_output):
 
         try:
 
             data_to_export = {
                 self.TOTAL_BUDGET_KEY: total_budget,
+                self.MANAGEMENT_ALLOWANCE_KEY: management_allowance,
                 self.ADMINISTRATION_PERCENTAGE_KEY: administration_percentage,
                 self.EMPLOYEES_KEY: df.to_dict(orient='records')
             }
