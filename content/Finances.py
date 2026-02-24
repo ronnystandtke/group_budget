@@ -159,7 +159,7 @@ class Finances:
             self.ROLE_KEY: "110px",
             self.HOURLY_RATE_KEY: "90px",
             self.DATE_OF_BIRTH_KEY: "140px",
-            self.VACATION_DAYS_KEY: "100px",
+            self.VACATION_DAYS_KEY: "80px",
             self.EMPLOYMENT_PERCENTAGE_KEY: "190px",
             self.ANNUAL_WORKING_HOURS_KEY: "55px",
             self.RESEARCH_PERCENTAGE_KEY: "190px",
@@ -281,14 +281,21 @@ class Finances:
             display(self.output_inner)
 
     def update_year(self):
+
         try:
+
             for idx, date_of_birth in self.df[self.DATE_OF_BIRTH_KEY].items():
                 if isinstance(date_of_birth, date):
                     self.df.at[idx, self.VACATION_DAYS_KEY] = (
                         self.calculations.get_vacation_days(
                             date_of_birth, self.year.value))
                     self.update_vacation_days_label(idx)
-                    # TODO: update dependencies
+                    self.update_annual_working_hours(idx)
+                    self.update_administration_hours(idx)
+                    self.update_administration_costs(idx)
+                    self.update_public_funds(idx)
+            self.refresh_visualization()
+
         except Exception:
             print(traceback.format_exc())
             with self.output:
@@ -322,11 +329,11 @@ class Finances:
     def handle_administration_percentage_update(self, change):
         for idx in self.df.index:
             is_management = self.df.at[idx, self.IS_MANAGEMENT_KEY]
-            employment_percentage = (
-                self.df.at[idx, self.EMPLOYMENT_PERCENTAGE_KEY])
 
             administration_hours = self.calculations.get_administration_hours(
-                is_management, employment_percentage, change["new"])
+                is_management,
+                self.df.at[idx, self.ANNUAL_WORKING_HOURS_KEY],
+                change["new"])
 
             self.df.at[idx, self.ADMINISTRATION_HOURS_KEY] = (
                 administration_hours)
@@ -414,6 +421,7 @@ class Finances:
             self.IS_MANAGEMENT_KEY: False,
             self.MANAGEMENT_COSTS_KEY: 0,
             self.DATE_OF_BIRTH_KEY: None,
+            self.VACATION_DAYS_KEY: 0
         }
 
         for col, default in defaults.items():
@@ -616,7 +624,9 @@ class Finances:
 
                 elif col == self.ANNUAL_WORKING_HOURS_KEY:
                     val = self.calculations.get_annual_working_hours(
-                        new_row[self.EMPLOYMENT_PERCENTAGE_KEY])
+                        self.annual_working_time.value,
+                        new_row[self.EMPLOYMENT_PERCENTAGE_KEY],
+                        new_row[self.VACATION_DAYS_KEY])
 
                 elif col == self.RESEARCH_HOURS_KEY:
                     val = self.calculations.get_research_hours(
@@ -636,10 +646,9 @@ class Finances:
                 elif col == self.ADMINISTRATION_HOURS_KEY:
                     is_management = self.input_widgets[
                         self.IS_MANAGEMENT_KEY].value
-                    employment_percentage = self.input_widgets[
-                        self.EMPLOYMENT_PERCENTAGE_KEY].value
                     val = self.calculations.get_administration_hours(
-                        is_management, employment_percentage,
+                        is_management,
+                        new_row[self.ANNUAL_WORKING_HOURS_KEY],
                         self.administration_percentage.value)
 
                 elif col == self.ADMINISTRATION_COSTS_KEY:
@@ -760,9 +769,7 @@ class Finances:
                         self.management_allowance.value, self.df,
                         self.IS_MANAGEMENT_KEY, self.df.loc[idx]))
 
-            self.update_administration_hours(
-                idx, self.df.at[idx, self.EMPLOYMENT_PERCENTAGE_KEY])
-
+            self.update_administration_hours(idx)
             self.update_administration_costs(idx)
             self.update_management_costs_label(idx)
             self.update_public_funds(idx)
@@ -798,6 +805,14 @@ class Finances:
         self.update_administration_costs(idx)
         self.update_public_funds(idx)
 
+    def update_annual_working_hours(self, idx):
+        annual_working_hours = self.calculations.get_annual_working_hours(
+            self.annual_working_time.value,
+            self.df.at[idx, self.EMPLOYMENT_PERCENTAGE_KEY],
+            self.df.at[idx, self.VACATION_DAYS_KEY])
+        self.df.at[idx, self.ANNUAL_WORKING_HOURS_KEY] = annual_working_hours
+        self.update_annual_working_hours_label(idx)
+
     def handle_date_of_birth_update(self, idx, new_value):
 
         self.df.at[idx, self.DATE_OF_BIRTH_KEY] = new_value
@@ -806,9 +821,8 @@ class Finances:
             self.calculations.get_vacation_days(new_value, self.year.value))
         self.update_vacation_days_label(idx)
 
-        # update dependencies
-        # TODO: update annual working hours
-        # TODO: update administration hours
+        self.update_annual_working_hours(idx)
+        self.update_administration_hours(idx)
         self.update_administration_costs(idx)
         self.update_public_funds(idx)
 
@@ -817,21 +831,17 @@ class Finances:
         self.df.at[idx, self.EMPLOYMENT_PERCENTAGE_KEY] = new_value
 
         # update annual working hours
-        annual_working_hours = (
-            self.calculations.get_annual_working_hours(new_value))
-        self.df.at[idx, self.ANNUAL_WORKING_HOURS_KEY] = annual_working_hours
-        self.update_annual_working_hours_label(idx)
+        self.update_annual_working_hours(idx)
 
         # update research hours
-        research_percentage = float(
-            self.df.at[idx, self.RESEARCH_PERCENTAGE_KEY])
         research_hours = self.calculations.get_research_hours(
-            annual_working_hours, research_percentage)
+            self.df.at[idx, self.ANNUAL_WORKING_HOURS_KEY],
+            self.df.at[idx, self.RESEARCH_PERCENTAGE_KEY])
         self.df.at[idx, self.RESEARCH_HOURS_KEY] = research_hours
         self.update_research_hours_label(idx)
 
         # update administration hours
-        self.update_administration_hours(idx, new_value)
+        self.update_administration_hours(idx)
 
         # update administration cost
         self.update_administration_costs(idx)
@@ -844,12 +854,11 @@ class Finances:
         self.df.at[idx, self.PUBLIC_FUNDS_KEY] = public_funds
         self.update_public_funds_label(idx)
 
-    def update_administration_hours(self, idx, employment_percentage):
-        is_management = float(
-            self.df.at[idx, self.IS_MANAGEMENT_KEY])
+    def update_administration_hours(self, idx):
         administration_hours = (
             self.calculations.get_administration_hours(
-                is_management, employment_percentage,
+                self.df.at[idx, self.IS_MANAGEMENT_KEY],
+                self.df.at[idx, self.ANNUAL_WORKING_HOURS_KEY],
                 self.administration_percentage.value))
         self.df.at[idx, self.ADMINISTRATION_HOURS_KEY] = administration_hours
         self.update_administration_hours_label(idx)
@@ -932,7 +941,9 @@ class Finances:
 
     def get_cell_annual_working_hours(self, idx, row):
         value = self.calculations.get_annual_working_hours(
-            row[self.EMPLOYMENT_PERCENTAGE_KEY])
+            self.annual_working_time.value,
+            row[self.EMPLOYMENT_PERCENTAGE_KEY],
+            row[self.VACATION_DAYS_KEY])
         cell = self.get_cost_label(
             f"{value:.2f}", self.ANNUAL_WORKING_HOURS_KEY)
         self.annual_working_hours_labels[idx] = cell

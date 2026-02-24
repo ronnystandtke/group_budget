@@ -1,9 +1,11 @@
 class Calculations:
 
     def __init__(self) -> None:
+        # e.g. here:
+        # https://www.pa.fin.be.ch/de/start/themen/anstellungsbedingungen/arbeitszeit-und-ferien/sollarbeitszeittabellen.html
         self.DEFAULT_ANNUAL_WORKING_HOURS = 2120
         self.DEFAULT_ADMINISTRATION_PERCENTAGE = 2
-        self.ANNUAL_WORKING_HOURS = 1940
+        self.HOURS_PER_DAY = 8.4
         self.known_hourly_rates = ["55", "69", "87", "89", "103", "117"]
 
     def get_management_share(self, management_allowance,
@@ -18,21 +20,22 @@ class Calculations:
 
         return management_allowance / len(managers)
 
-    def get_annual_working_hours(self, employment_percentage):
-        return self._get_percentage(
-            self.ANNUAL_WORKING_HOURS, employment_percentage)
+    def get_annual_working_hours(self, annual_working_hours,
+                                 employment_percentage, vacation_days):
+        working_hours = (
+            annual_working_hours - (vacation_days * self.HOURS_PER_DAY))
+        return self._get_percentage(working_hours, employment_percentage)
 
     def get_research_hours(self, annual_working_hours, research_percentage):
         return self._get_percentage(
             annual_working_hours, research_percentage)
 
-    def get_administration_hours(
-            self, is_management, employment_percentage, administration_factor):
+    def get_administration_hours(self, is_management, annual_working_hours,
+                                 administration_factor):
         if is_management:
             return 0
         else:
-            return (self.get_annual_working_hours(employment_percentage) *
-                    administration_factor / 100)
+            return annual_working_hours * administration_factor / 100
 
     def get_float(self, value):
         try:
@@ -55,14 +58,10 @@ class Calculations:
                 self.get_float(management_costs) +
                 self.get_float(administration_costs))
 
-    def get_remaining_budget(
-            self, total_budget, acquisition_expenses,
-            management_expenses, administrative_expenses):
+    def get_remaining_budget(self, total_budget, acquisition_expenses,
+                             management_expenses, administrative_expenses):
         return (total_budget - acquisition_expenses -
                 management_expenses - administrative_expenses)
-
-    def _get_percentage(self, value, percentage):
-        return value * percentage / 100
 
     def get_vacation_days(self, birthdate, year):
         if not birthdate:
@@ -78,3 +77,6 @@ class Calculations:
             return 28
         else:
             return 33
+
+    def _get_percentage(self, value, percentage):
+        return value * percentage / 100
