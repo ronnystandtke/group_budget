@@ -1,7 +1,9 @@
 class Calculations:
 
     def __init__(self) -> None:
-        self.ANNUAL_WORKING_HOURS = 1940  # hours
+        self.DEFAULT_ANNUAL_WORKING_HOURS = 2120
+        self.DEFAULT_ADMINISTRATION_PERCENTAGE = 2
+        self.ANNUAL_WORKING_HOURS = 1940
         self.known_hourly_rates = ["55", "69", "87", "89", "103", "117"]
 
     def get_management_share(self, management_allowance,

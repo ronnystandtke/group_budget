@@ -6,6 +6,7 @@ import gettext
 import ipywidgets as widgets
 import pandas as pd
 import traceback
+from datetime import date
 
 gettext.bindtextdomain('finances', 'translations')
 gettext.textdomain('finances')
@@ -38,9 +39,19 @@ class Finances:
                 justify_content='flex-end',
                 text_align='right')
 
+        self.year = self.get_money_floattext(
+            date.today().year, _("Year")
+        )
+
+        self.annual_working_time = self.get_money_floattext(
+            self.calculations.DEFAULT_ANNUAL_WORKING_HOURS,
+            _("Annual Working Time (h):")
+        )
+
         self.total_budget = self.get_money_floattext(
             0.0, _("Total Budget (CHF):")
         )
+
         self.total_budget.observe(
             lambda change: self.update_remaining_budget(),
             names="value"
@@ -62,7 +73,7 @@ class Finances:
             min=0,
             max=100,
             step=1,
-            value=2,
+            value=self.calculations.DEFAULT_ADMINISTRATION_PERCENTAGE,
             description=_("Administration (%)"),
             style=finances_style,
             layout=finances_layout
@@ -362,15 +373,28 @@ class Finances:
 
         try:
             content = self.upload_button.value[0]["content"]
-            json_data = self.file_handler.load_data(content)
-            self.total_budget.value = json_data.get(
+            self.json_data = self.file_handler.load_data(content)
+
+            self.year.value = self.json_data.get(
+                self.file_handler.YEAR_KEY, date.today().year)
+
+            self.annual_working_time.value = self.json_data.get(
+                self.file_handler.ANNUAL_WORKING_TIME_KEY,
+                self.calculations.DEFAULT_ANNUAL_WORKING_HOURS)
+
+            self.total_budget.value = self.json_data.get(
                 self.file_handler.TOTAL_BUDGET_KEY, 0)
-            self.management_allowance.value = json_data.get(
+
+            self.management_allowance.value = self.json_data.get(
                 self.file_handler.MANAGEMENT_ALLOWANCE_KEY, 0)
-            self.administration_percentage.value = json_data.get(
-                self.file_handler.ADMINISTRATION_PERCENTAGE_KEY, 2)
-            self.df = pd.DataFrame(json_data.get(
+
+            self.administration_percentage.value = self.json_data.get(
+                self.file_handler.ADMINISTRATION_PERCENTAGE_KEY,
+                self.calculations.DEFAULT_ADMINISTRATION_PERCENTAGE)
+
+            self.df = pd.DataFrame(self.json_data.get(
                 self.file_handler.EMPLOYEES_KEY, []))
+
             self.ensure_columns()
             self.refresh_table()
 
@@ -385,6 +409,8 @@ class Finances:
     def save_data(self):
         try:
             self.file_handler.save_data(
+                self.year.value,
+                self.annual_working_time.value,
                 self.total_budget.value,
                 self.management_allowance.value,
                 self.administration_percentage.value,
@@ -1080,14 +1106,23 @@ class Finances:
             layout=widgets.Layout(
                 border="1px solid lightblue", padding=input_padding))
 
-        top_box = widgets.VBox([
-            button_row,
+        parameter_box = widgets.VBox([
+            self.year,
+            self.annual_working_time,
+            self.administration_percentage]
+        )
+
+        budget_box = widgets.VBox([
             self.total_budget,
             self.management_allowance,
-            self.administration_percentage,
             self.acquisition_expenses,
             self.administrative_expenses,
             self.remaining_budget]
+        )
+
+        top_box = widgets.VBox([
+            button_row,
+            widgets.HBox([parameter_box, budget_box])]
         )
 
         scrollable = widgets.VBox(
