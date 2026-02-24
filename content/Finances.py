@@ -249,7 +249,9 @@ class Finances:
                 'description_width': "210px",
                 'text_align': 'right'
             },
-            layout=widgets.Layout(width="400px")
+            layout=widgets.Layout(
+                width="400px",
+                flex="0 0 auto")
         )
 
     def handle_administration_percentage_update(self, change):
@@ -270,21 +272,32 @@ class Finances:
         self.refresh_table()
 
     def get_name_text(self, value):
-        return widgets.Text(value=value, layout=widgets.Layout(
-            width=self.column_widths[self.NAME_KEY]))
+        return widgets.Text(
+            value=value,
+            layout=widgets.Layout(
+                width=self.column_widths[self.NAME_KEY],
+                flex="0 0 auto"
+            )
+        )
 
     def get_role_dropdown(self, value):
         return widgets.Dropdown(
             value=value,
             options=self.ROLES.values(),
-            layout=widgets.Layout(width=self.column_widths[self.ROLE_KEY]))
+            layout=widgets.Layout(
+                width=self.column_widths[self.ROLE_KEY],
+                flex="0 0 auto"
+            )
+        )
 
     def get_management_checkbox(self, value):
         return widgets.Checkbox(
             value=value,
             layout=widgets.Layout(
-                width=self.column_widths[self.IS_MANAGEMENT_KEY])
+                width=self.column_widths[self.IS_MANAGEMENT_KEY],
+                flex="0 0 auto"
             )
+        )
 
     def get_hourly_rate_combobox(self, value):
         return widgets.Combobox(
@@ -292,17 +305,33 @@ class Finances:
             options=self.calculations.known_hourly_rates,
             ensure_option=False,
             layout=widgets.Layout(
-                width=self.column_widths[self.HOURLY_RATE_KEY]))
+                width=self.column_widths[self.HOURLY_RATE_KEY],
+                flex="0 0 auto"
+            )
+        )
 
     def get_float_slider(self, value, width_key):
         return widgets.FloatSlider(
-            min=0, max=100, step=1, readout_format=".0f", value=value,
-            layout=widgets.Layout(width=self.column_widths[width_key]))
+            min=0,
+            max=100,
+            step=1,
+            readout_format=".0f",
+            value=value,
+            layout=widgets.Layout(
+                width=self.column_widths[width_key],
+                flex="0 0 auto"
+            )
+        )
 
     def get_floattext(self, value, width_key):
         return widgets.FloatText(
-            value=value, step=1, layout=widgets.Layout(
-                width=self.column_widths[width_key]))
+            value=value,
+            step=1,
+            layout=widgets.Layout(
+                width=self.column_widths[width_key],
+                flex="0 0 auto"
+            )
+        )
 
     def get_cost_label(self, value, width_key):
         return widgets.Label(
@@ -310,7 +339,10 @@ class Finances:
             layout=widgets.Layout(
                 display="flex",
                 justify_content="flex-end",
-                width=self.column_widths[width_key]))
+                width=self.column_widths[width_key],
+                flex="0 0 auto"
+            )
+        )
 
     def ensure_columns(self):
         defaults = {
@@ -954,8 +986,15 @@ class Finances:
 
             cells.append(btn)
 
-            row_boxes.append(widgets.HBox(
-                cells, layout=widgets.Layout(padding="0px 5px")))
+            row_boxes.append(
+                widgets.HBox(
+                    cells,
+                    layout=widgets.Layout(
+                        padding="0px 5px",
+                        flex="0 0 auto"
+                    )
+                )
+            )
 
         # --- show everything in output_inner ---
         self.output_inner.children = row_boxes
@@ -1041,18 +1080,40 @@ class Finances:
             layout=widgets.Layout(
                 border="1px solid lightblue", padding=input_padding))
 
-        # --- outer container ---
-        container = widgets.VBox([
+        top_box = widgets.VBox([
             button_row,
             self.total_budget,
             self.management_allowance,
             self.administration_percentage,
             self.acquisition_expenses,
             self.administrative_expenses,
-            self.remaining_budget,
-            header_row,
-            input_row,
-            self.output,
+            self.remaining_budget]
+        )
+
+        scrollable = widgets.VBox(
+            [header_row,
+             input_row,
+             self.output],
+            layout=widgets.Layout(
+                min_width="2100px"
+            )
+        )
+
+        scroll_pane = widgets.Box(
+            children=[scrollable],
+            layout=widgets.Layout(
+                width='100%',
+                overflow_x='auto',
+                border='1px solid gray',
+                padding="5px 0px 10px 0px",
+                margin="5px 0px 0px 0px"
+            )
+        )
+
+        # --- outer container ---
+        container = widgets.VBox([
+            top_box,
+            scroll_pane,
             self.visualization_output])
         container.layout.padding = "0px"
 
