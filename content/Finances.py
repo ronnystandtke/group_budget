@@ -105,6 +105,7 @@ class Finances:
         self.IS_MANAGEMENT_KEY = "Is Management"
         self.NAME_KEY = "Name"
         self.ROLE_KEY = "Role"
+        self.ILV_KEY = "ILV"
         self.HOURLY_RATE_KEY = "Hourly Rate (CHF)"
         self.DATE_OF_BIRTH_KEY = "Date of Birth"
         self.VACATION_DAYS_KEY = "Vacation Days"
@@ -121,6 +122,7 @@ class Finances:
         self.COLUMNS = {
             self.NAME_KEY: _("Name"),
             self.ROLE_KEY: _("Role"),
+            self.ILV_KEY: _("ILV"),
             self.HOURLY_RATE_KEY: _("Hourly<br>Rate<br>(CHF)"),
             self.DATE_OF_BIRTH_KEY: _("Date of Birth"),
             self.VACATION_DAYS_KEY: _("Vacation<br>Days"),
@@ -157,6 +159,7 @@ class Finances:
         self.column_widths = {
             self.NAME_KEY: "150px",
             self.ROLE_KEY: "110px",
+            self.ILV_KEY: "120px",
             self.HOURLY_RATE_KEY: "90px",
             self.DATE_OF_BIRTH_KEY: "140px",
             self.VACATION_DAYS_KEY: "80px",
@@ -183,6 +186,9 @@ class Finances:
 
             self.ROLE_KEY:
                 self.get_role_dropdown(self.DEFAULT_ROLE),
+
+            self.ILV_KEY:
+                self.get_checkbox(False, self.ILV_KEY),
 
             self.HOURLY_RATE_KEY:
                 self.get_hourly_rate_combobox(""),
@@ -212,7 +218,7 @@ class Finances:
                 self.get_cost_label("", self.ACQUISITION_COSTS_KEY),
 
             self.IS_MANAGEMENT_KEY:
-                self.get_management_checkbox(False),
+                self.get_checkbox(False, self.IS_MANAGEMENT_KEY),
 
             self.MANAGEMENT_COSTS_KEY:
                 self.get_cost_label("", self.MANAGEMENT_COSTS_KEY),
@@ -362,11 +368,11 @@ class Finances:
             )
         )
 
-    def get_management_checkbox(self, value):
+    def get_checkbox(self, value, with_key):
         return widgets.Checkbox(
             value=value,
             layout=widgets.Layout(
-                width=self.column_widths[self.IS_MANAGEMENT_KEY],
+                width=self.column_widths[with_key],
                 flex="0 0 auto"
             )
         )
@@ -421,7 +427,8 @@ class Finances:
             self.IS_MANAGEMENT_KEY: False,
             self.MANAGEMENT_COSTS_KEY: 0,
             self.DATE_OF_BIRTH_KEY: None,
-            self.VACATION_DAYS_KEY: 0
+            self.VACATION_DAYS_KEY: 0,
+            self.ILV_KEY: False
         }
 
         for col, default in defaults.items():
@@ -489,6 +496,7 @@ class Finances:
     def reset_input_widgets(self):
         self.input_widgets[self.NAME_KEY].value = ""
         self.input_widgets[self.ROLE_KEY].value = (self.DEFAULT_ROLE)
+        self.input_widgets[self.ILV_KEY].value = False
         self.input_widgets[self.HOURLY_RATE_KEY].value = ""
         self.input_widgets[self.EMPLOYMENT_PERCENTAGE_KEY].value = 80
         self.input_widgets[self.RESEARCH_PERCENTAGE_KEY].value = 50
@@ -912,6 +920,9 @@ class Finances:
             elif col == self.ROLE_KEY:
                 self.handle_role_update(idx, col, new_value)
 
+            elif col == self.ILV_KEY:
+                self.df.at[idx, col] = new_value
+
             elif col == self.HOURLY_RATE_KEY:
                 self.handle_hourly_rate_update(idx, change)
                 self.refresh_visualization()
@@ -1017,8 +1028,12 @@ class Finances:
         elif col == self.ROLE_KEY:
             cell = self.get_role_dropdown(self.ROLES[row[col]])
 
+        elif col == self.ILV_KEY:
+            cell = self.get_checkbox(row.get(col, False), self.ILV_KEY)
+
         elif col == self.IS_MANAGEMENT_KEY:
-            cell = self.get_management_checkbox(row.get(col, False))
+            cell = self.get_checkbox(
+                row.get(col, False), self.IS_MANAGEMENT_KEY)
 
         elif col == self.HOURLY_RATE_KEY:
             cell = self.get_hourly_rate_combobox(row[col])
@@ -1240,7 +1255,7 @@ class Finances:
              input_row,
              self.output],
             layout=widgets.Layout(
-                min_width="2100px"
+                min_width="2300px"
             )
         )
 
