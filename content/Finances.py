@@ -102,6 +102,7 @@ class Finances:
         self.NAME_KEY = "Name"
         self.ROLE_KEY = "Role"
         self.HOURLY_RATE_KEY = "Hourly Rate (CHF)"
+        self.DATE_OF_BIRTH_KEY = "Date of Birth"
         self.EMPLOYMENT_PERCENTAGE_KEY = "Employment (%)"
         self.ANNUAL_WORKING_HOURS_KEY = "Annual Working Hours (h)"
         self.RESEARCH_PERCENTAGE_KEY = "Research (%)"
@@ -116,6 +117,7 @@ class Finances:
             self.NAME_KEY: _("Name"),
             self.ROLE_KEY: _("Role"),
             self.HOURLY_RATE_KEY: _("Hourly<br>Rate<br>(CHF)"),
+            self.DATE_OF_BIRTH_KEY: _("Date of Birth"),
             self.EMPLOYMENT_PERCENTAGE_KEY: _("Employment<br>(%)"),
             self.ANNUAL_WORKING_HOURS_KEY:
                 _("Annual<br>Working<br>Hours<br>(h)"),
@@ -150,6 +152,7 @@ class Finances:
             self.NAME_KEY: "150px",
             self.ROLE_KEY: "110px",
             self.HOURLY_RATE_KEY: "90px",
+            self.DATE_OF_BIRTH_KEY: "140px",
             self.EMPLOYMENT_PERCENTAGE_KEY: "190px",
             self.ANNUAL_WORKING_HOURS_KEY: "55px",
             self.RESEARCH_PERCENTAGE_KEY: "190px",
@@ -167,32 +170,49 @@ class Finances:
         self.sort_states = {column: None for column in self.COLUMNS.keys()}
 
         self.input_widgets = {
+
             self.NAME_KEY:
                 self.get_name_text(""),
+
             self.ROLE_KEY:
                 self.get_role_dropdown(self.DEFAULT_ROLE),
+
             self.HOURLY_RATE_KEY:
                 self.get_hourly_rate_combobox(""),
+
+            self.DATE_OF_BIRTH_KEY:
+                self.get_date_of_birth_picker(),
+
             self.EMPLOYMENT_PERCENTAGE_KEY:
                 self.get_float_slider(0, self.EMPLOYMENT_PERCENTAGE_KEY),
+
             self.ANNUAL_WORKING_HOURS_KEY:
                 self.get_cost_label("", self.ANNUAL_WORKING_HOURS_KEY),
+
             self.RESEARCH_PERCENTAGE_KEY:
                 self.get_float_slider(0, self.RESEARCH_PERCENTAGE_KEY),
+
             self.RESEARCH_HOURS_KEY:
                 self.get_cost_label("", self.RESEARCH_HOURS_KEY),
+
             self.ACQUISITION_HOURS_KEY:
                 self.get_floattext(0, self.ACQUISITION_HOURS_KEY),
+
             self.ACQUISITION_COSTS_KEY:
                 self.get_cost_label("", self.ACQUISITION_COSTS_KEY),
+
             self.IS_MANAGEMENT_KEY:
                 self.get_management_checkbox(False),
+
             self.MANAGEMENT_COSTS_KEY:
                 self.get_cost_label("", self.MANAGEMENT_COSTS_KEY),
+
             self.ADMINISTRATION_HOURS_KEY:
                 self.get_cost_label("", self.ADMINISTRATION_HOURS_KEY),
+
             self.ADMINISTRATION_COSTS_KEY:
                 self.get_cost_label("", self.ADMINISTRATION_COSTS_KEY),
+
             self.PUBLIC_FUNDS_KEY:
                 self.get_cost_label("", self.PUBLIC_FUNDS_KEY)
         }
@@ -248,6 +268,15 @@ class Finances:
 
         with self.output:
             display(self.output_inner)
+
+    def get_date_of_birth_picker(self, value=None):
+        return widgets.DatePicker(
+            value=value,
+            layout=widgets.Layout(
+                width=self.column_widths[self.DATE_OF_BIRTH_KEY],
+                flex="0 0 auto"
+            )
+        )
 
     def get_money_floattext(self, value, description, disabled=False):
         return widgets.FloatText(
@@ -359,13 +388,16 @@ class Finances:
         defaults = {
             self.IS_MANAGEMENT_KEY: False,
             self.MANAGEMENT_COSTS_KEY: 0,
+            self.DATE_OF_BIRTH_KEY: None,
         }
 
         for col, default in defaults.items():
+
             if col not in self.df.columns:
                 self.df[col] = default
 
-            self.df[col] = self.df[col].fillna(default)
+            if default is not None:
+                self.df[col] = self.df[col].fillna(default)
 
     def load_data(self, change):
         if not change["new"]:
@@ -828,6 +860,9 @@ class Finances:
                 self.handle_hourly_rate_update(idx, change)
                 self.refresh_visualization()
 
+            elif col == self.DATE_OF_BIRTH_KEY:
+                self.df.at[idx, col] = new_value
+
             elif col == self.EMPLOYMENT_PERCENTAGE_KEY:
                 self.handle_employment_percentage_update(idx, new_value)
                 self.refresh_visualization()
@@ -919,6 +954,9 @@ class Finances:
 
         elif col == self.HOURLY_RATE_KEY:
             cell = self.get_hourly_rate_combobox(row[col])
+
+        elif col == self.DATE_OF_BIRTH_KEY:
+            cell = self.get_date_of_birth_picker(row[col])
 
         elif col == self.EMPLOYMENT_PERCENTAGE_KEY:
             cell = self.get_float_slider(
