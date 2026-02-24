@@ -26,6 +26,10 @@ class Calculations:
             annual_working_hours - (vacation_days * self.HOURS_PER_DAY))
         return self._get_percentage(working_hours, employment_percentage)
 
+    def get_annual_vacation_hours(self, vacation_days, employment_percentage):
+        return self._get_percentage(
+            vacation_days * self.HOURS_PER_DAY, employment_percentage)
+
     def get_research_hours(self, annual_working_hours, research_percentage):
         return self._get_percentage(
             annual_working_hours, research_percentage)

@@ -111,6 +111,7 @@ class Finances:
         self.VACATION_DAYS_KEY = "Vacation Days"
         self.EMPLOYMENT_PERCENTAGE_KEY = "Employment (%)"
         self.ANNUAL_WORKING_HOURS_KEY = "Annual Working Hours (h)"
+        self.ANNUAL_VACATION_HOURS_KEY = "Annual Vacation Hours (h)"
         self.RESEARCH_PERCENTAGE_KEY = "Research (%)"
         self.RESEARCH_HOURS_KEY = "Research (h)"
         self.ACQUISITION_HOURS_KEY = "Acquisition (h)"
@@ -129,6 +130,8 @@ class Finances:
             self.EMPLOYMENT_PERCENTAGE_KEY: _("Employment<br>(%)"),
             self.ANNUAL_WORKING_HOURS_KEY:
                 _("Annual<br>Working<br>Hours<br>(h)"),
+            self.ANNUAL_VACATION_HOURS_KEY:
+                _("Annual<br>Vacation<br>Hours<br>(h)"),
             self.RESEARCH_PERCENTAGE_KEY: _("Research<br>(%)"),
             self.RESEARCH_HOURS_KEY: _("Research<br>(h)"),
             self.ACQUISITION_HOURS_KEY: _("Acquisition<br>(h)"),
@@ -165,6 +168,7 @@ class Finances:
             self.VACATION_DAYS_KEY: "80px",
             self.EMPLOYMENT_PERCENTAGE_KEY: "190px",
             self.ANNUAL_WORKING_HOURS_KEY: "55px",
+            self.ANNUAL_VACATION_HOURS_KEY: "80px",
             self.RESEARCH_PERCENTAGE_KEY: "190px",
             self.RESEARCH_HOURS_KEY: "100px",
             self.ACQUISITION_HOURS_KEY: "90px",
@@ -204,6 +208,9 @@ class Finances:
 
             self.ANNUAL_WORKING_HOURS_KEY:
                 self.get_cost_label("", self.ANNUAL_WORKING_HOURS_KEY),
+
+            self.ANNUAL_VACATION_HOURS_KEY:
+                self.get_cost_label("", self.ANNUAL_VACATION_HOURS_KEY),
 
             self.RESEARCH_PERCENTAGE_KEY:
                 self.get_float_slider(0, self.RESEARCH_PERCENTAGE_KEY),
@@ -248,6 +255,7 @@ class Finances:
         self.filter_widgets = {}
         self.vacation_days_labels = {}
         self.annual_working_hours_labels = {}
+        self.annual_vacation_hours_labels = {}
         self.research_hours_labels = {}
         self.acquisition_cost_labels = {}
         self.management_cost_labels = {}
@@ -297,6 +305,7 @@ class Finances:
                             date_of_birth, self.year.value))
                     self.update_vacation_days_label(idx)
                     self.update_annual_working_hours(idx)
+                    self.update_annual_vacation_hours(idx)
                     self.update_administration_hours(idx)
                     self.update_administration_costs(idx)
                     self.update_public_funds(idx)
@@ -428,7 +437,8 @@ class Finances:
             self.MANAGEMENT_COSTS_KEY: 0,
             self.DATE_OF_BIRTH_KEY: None,
             self.VACATION_DAYS_KEY: 0,
-            self.ILV_KEY: False
+            self.ILV_KEY: False,
+            self.ANNUAL_VACATION_HOURS_KEY: 0
         }
 
         for col, default in defaults.items():
@@ -534,6 +544,13 @@ class Finances:
         value = row[self.ANNUAL_WORKING_HOURS_KEY]
         self.annual_working_hours_labels[idx].value = (f"{value:.2f}")
 
+    def update_annual_vacation_hours_label(self, idx):
+        if idx not in self.annual_vacation_hours_labels:
+            return
+
+        value = self.df.at[idx, self.ANNUAL_VACATION_HOURS_KEY]
+        self.annual_vacation_hours_labels[idx].value = f"{value:.2f}"
+
     def update_research_hours_label(self, idx):
         if idx not in self.research_hours_labels:
             return
@@ -635,6 +652,11 @@ class Finances:
                         self.annual_working_time.value,
                         new_row[self.EMPLOYMENT_PERCENTAGE_KEY],
                         new_row[self.VACATION_DAYS_KEY])
+
+                elif col == self.ANNUAL_VACATION_HOURS_KEY:
+                    val = self.calculations.get_annual_vacation_hours(
+                        new_row[self.VACATION_DAYS_KEY],
+                        new_row[self.EMPLOYMENT_PERCENTAGE_KEY])
 
                 elif col == self.RESEARCH_HOURS_KEY:
                     val = self.calculations.get_research_hours(
@@ -821,6 +843,14 @@ class Finances:
         self.df.at[idx, self.ANNUAL_WORKING_HOURS_KEY] = annual_working_hours
         self.update_annual_working_hours_label(idx)
 
+    def update_annual_vacation_hours(self, idx):
+        vacation_hours = self.calculations.get_annual_vacation_hours(
+            self.df.at[idx, self.VACATION_DAYS_KEY],
+            self.df.at[idx, self.EMPLOYMENT_PERCENTAGE_KEY])
+
+        self.df.at[idx, self.ANNUAL_VACATION_HOURS_KEY] = vacation_hours
+        self.update_annual_vacation_hours_label(idx)
+
     def handle_date_of_birth_update(self, idx, new_value):
 
         self.df.at[idx, self.DATE_OF_BIRTH_KEY] = new_value
@@ -830,6 +860,7 @@ class Finances:
         self.update_vacation_days_label(idx)
 
         self.update_annual_working_hours(idx)
+        self.update_annual_vacation_hours(idx)
         self.update_administration_hours(idx)
         self.update_administration_costs(idx)
         self.update_public_funds(idx)
@@ -840,6 +871,9 @@ class Finances:
 
         # update annual working hours
         self.update_annual_working_hours(idx)
+
+        # update annual vacation hours
+        self.update_annual_vacation_hours(idx)
 
         # update research hours
         research_hours = self.calculations.get_research_hours(
@@ -960,6 +994,16 @@ class Finances:
         self.annual_working_hours_labels[idx] = cell
         return cell
 
+    def get_cell_annual_vacation_hours(self, idx, row):
+        try:
+            value = float(row[self.ANNUAL_VACATION_HOURS_KEY])
+            text = f"{value:.2f}"
+        except Exception:
+            text = "0.00"
+        cell = self.get_cost_label(text, self.ANNUAL_VACATION_HOURS_KEY)
+        self.annual_vacation_hours_labels[idx] = cell
+        return cell
+
     def get_cell_vacation_days(self, idx, row):
         birthdate = row.get(self.DATE_OF_BIRTH_KEY)
         value = self.calculations.get_vacation_days(birthdate, self.year.value)
@@ -1053,6 +1097,10 @@ class Finances:
             cell = self.get_cell_annual_working_hours(idx, row)
             observing = False
 
+        elif col == self.ANNUAL_VACATION_HOURS_KEY:
+            cell = self.get_cell_annual_vacation_hours(idx, row)
+            observing = False
+
         elif col == self.RESEARCH_PERCENTAGE_KEY:
             cell = self.get_float_slider(
                 row[col], self.RESEARCH_PERCENTAGE_KEY)
@@ -1097,6 +1145,7 @@ class Finances:
     def refresh_table(self):
 
         self.annual_working_hours_labels.clear()
+        self.annual_vacation_hours_labels.clear()
         self.research_hours_labels.clear()
         self.acquisition_cost_labels.clear()
         self.management_cost_labels.clear()
