@@ -63,3 +63,18 @@ class Calculations:
 
     def _get_percentage(self, value, percentage):
         return value * percentage / 100
+
+    def get_vacation_days(self, birthdate, year):
+        if not birthdate:
+            return 0
+
+        age = year - birthdate.year
+
+        if age <= 20:
+            return 28
+        elif age <= 44:
+            return 25
+        elif age <= 55:
+            return 28
+        else:
+            return 33

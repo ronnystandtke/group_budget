@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-24 20:06+0100\n"
+"POT-Creation-Date: 2026-02-24 21:32+0100\n"
 "PO-Revision-Date: 2026-01-31 18:51+0100\n"
 "Last-Translator: Ronny Standtke <ronny.standtke@gmx.net>\n"
 "Language-Team: German <de@li.org>\n"
@@ -28,116 +28,120 @@ msgstr "Speichern"
 msgid "Year"
 msgstr "Jahr"
 
-#: ../Finances.py:48
+#: ../Finances.py:52
 msgid "Annual Working Time (h):"
 msgstr "Jahresarbeitszeit (h)"
 
-#: ../Finances.py:52
+#: ../Finances.py:56
 msgid "Total Budget (CHF):"
 msgstr "Gesamtbudget (CHF)"
 
-#: ../Finances.py:65
+#: ../Finances.py:69
 msgid "Management Allowance (CHF):"
 msgstr "Leitungspauschale (CHF)"
 
-#: ../Finances.py:77
+#: ../Finances.py:81
 msgid "Administration (%)"
 msgstr ""
 
-#: ../Finances.py:87
+#: ../Finances.py:91
 msgid "Acquisition Costs (CHF):"
 msgstr "Akquisekosten (CHF)"
 
-#: ../Finances.py:91
+#: ../Finances.py:95
 msgid "Administative Costs (CHF):"
 msgstr "Administrationskosten (CHF)"
 
-#: ../Finances.py:95
+#: ../Finances.py:99
 msgid "Remaining Budget (CHF):"
 msgstr "Verbleibendes Budget (CHF)"
 
-#: ../Finances.py:117
+#: ../Finances.py:122
 msgid "Name"
 msgstr ""
 
-#: ../Finances.py:118
+#: ../Finances.py:123
 msgid "Role"
 msgstr "Rolle"
 
-#: ../Finances.py:119
+#: ../Finances.py:124
 msgid "Hourly<br>Rate<br>(CHF)"
 msgstr "Stundensatz<br>(CHF)"
 
-#: ../Finances.py:120
+#: ../Finances.py:125
 msgid "Date of Birth"
 msgstr "Geburtsdatum"
 
-#: ../Finances.py:121
+#: ../Finances.py:126
+msgid "Vacation<br>Days"
+msgstr "Ferien-<br>tage"
+
+#: ../Finances.py:127
 msgid "Employment<br>(%)"
 msgstr "Beschäftigungsgrad<br>(%)"
 
-#: ../Finances.py:123
+#: ../Finances.py:129
 msgid "Annual<br>Working<br>Hours<br>(h)"
 msgstr "Jahres-<br>arbeits-<br>zeit<br>(h)"
 
-#: ../Finances.py:124
+#: ../Finances.py:130
 msgid "Research<br>(%)"
 msgstr "Forschung<br>(%)"
 
-#: ../Finances.py:125
+#: ../Finances.py:131
 msgid "Research<br>(h)"
 msgstr "Forschung<br>(h)"
 
-#: ../Finances.py:126
+#: ../Finances.py:132
 msgid "Acquisition<br>(h)"
 msgstr "Akquise<br>(h)"
 
-#: ../Finances.py:127
+#: ../Finances.py:133
 msgid "Acquisition<br>(CHF)"
 msgstr "Akquise<br>(CHF)"
 
-#: ../Finances.py:128 ../Visualization.py:29 ../Visualization.py:51
+#: ../Finances.py:134 ../Visualization.py:29 ../Visualization.py:51
 #: ../Visualization.py:78
 msgid "Management"
 msgstr ""
 
-#: ../Finances.py:129
+#: ../Finances.py:135
 msgid "Management<br>(CHF)"
 msgstr ""
 
-#: ../Finances.py:130
+#: ../Finances.py:136
 msgid "Administration<br>(h)"
 msgstr ""
 
-#: ../Finances.py:132
+#: ../Finances.py:138
 msgid "Administration<br>(CHF)"
 msgstr ""
 
-#: ../Finances.py:133
+#: ../Finances.py:139
 msgid "Public<br>Funds<br>(CHF)"
 msgstr "Staatsmittel<br>(CHF)"
 
-#: ../Finances.py:138
+#: ../Finances.py:144
 msgid "Lecturer"
 msgstr "Dozent(in)"
 
-#: ../Finances.py:139
+#: ../Finances.py:145
 msgid "Scientific Staff"
 msgstr "WiMa"
 
-#: ../Finances.py:140
+#: ../Finances.py:146
 msgid "Research Assistant"
 msgstr "Assistent(in)"
 
-#: ../Finances.py:147
+#: ../Finances.py:153
 msgid "Actions"
 msgstr "Aktionen"
 
-#: ../Finances.py:226
+#: ../Finances.py:236
 msgid "Add"
 msgstr "Hinzufügen"
 
-#: ../Finances.py:243
+#: ../Finances.py:254
 msgid "Filter"
 msgstr ""
 

@@ -42,6 +42,10 @@ class Finances:
         self.year = self.get_money_floattext(
             date.today().year, _("Year")
         )
+        self.year.observe(
+            lambda change: self.update_year(),
+            names="value"
+        )
 
         self.annual_working_time = self.get_money_floattext(
             self.calculations.DEFAULT_ANNUAL_WORKING_HOURS,
@@ -103,6 +107,7 @@ class Finances:
         self.ROLE_KEY = "Role"
         self.HOURLY_RATE_KEY = "Hourly Rate (CHF)"
         self.DATE_OF_BIRTH_KEY = "Date of Birth"
+        self.VACATION_DAYS_KEY = "Vacation Days"
         self.EMPLOYMENT_PERCENTAGE_KEY = "Employment (%)"
         self.ANNUAL_WORKING_HOURS_KEY = "Annual Working Hours (h)"
         self.RESEARCH_PERCENTAGE_KEY = "Research (%)"
@@ -118,6 +123,7 @@ class Finances:
             self.ROLE_KEY: _("Role"),
             self.HOURLY_RATE_KEY: _("Hourly<br>Rate<br>(CHF)"),
             self.DATE_OF_BIRTH_KEY: _("Date of Birth"),
+            self.VACATION_DAYS_KEY: _("Vacation<br>Days"),
             self.EMPLOYMENT_PERCENTAGE_KEY: _("Employment<br>(%)"),
             self.ANNUAL_WORKING_HOURS_KEY:
                 _("Annual<br>Working<br>Hours<br>(h)"),
@@ -153,6 +159,7 @@ class Finances:
             self.ROLE_KEY: "110px",
             self.HOURLY_RATE_KEY: "90px",
             self.DATE_OF_BIRTH_KEY: "140px",
+            self.VACATION_DAYS_KEY: "100px",
             self.EMPLOYMENT_PERCENTAGE_KEY: "190px",
             self.ANNUAL_WORKING_HOURS_KEY: "55px",
             self.RESEARCH_PERCENTAGE_KEY: "190px",
@@ -182,6 +189,9 @@ class Finances:
 
             self.DATE_OF_BIRTH_KEY:
                 self.get_date_of_birth_picker(),
+
+            self.VACATION_DAYS_KEY:
+                self.get_cost_label("", self.VACATION_DAYS_KEY),
 
             self.EMPLOYMENT_PERCENTAGE_KEY:
                 self.get_float_slider(0, self.EMPLOYMENT_PERCENTAGE_KEY),
@@ -230,6 +240,7 @@ class Finances:
 
         self.sort_buttons = {}
         self.filter_widgets = {}
+        self.vacation_days_labels = {}
         self.annual_working_hours_labels = {}
         self.research_hours_labels = {}
         self.acquisition_cost_labels = {}
@@ -268,6 +279,20 @@ class Finances:
 
         with self.output:
             display(self.output_inner)
+
+    def update_year(self):
+        try:
+            for idx, date_of_birth in self.df[self.DATE_OF_BIRTH_KEY].items():
+                if isinstance(date_of_birth, date):
+                    self.df.at[idx, self.VACATION_DAYS_KEY] = (
+                        self.calculations.get_vacation_days(
+                            date_of_birth, self.year.value))
+                    self.update_vacation_days_label(idx)
+                    # TODO: update dependencies
+        except Exception:
+            print(traceback.format_exc())
+            with self.output:
+                print(traceback.format_exc())
 
     def get_date_of_birth_picker(self, value=None):
         return widgets.DatePicker(
@@ -476,6 +501,14 @@ class Finances:
                 self.management_allowance.value,
                 self.df, self.IS_MANAGEMENT_KEY, row),
             self.compute_administration_costs(row))
+
+    def update_vacation_days_label(self, idx):
+        if idx not in self.vacation_days_labels:
+            return
+
+        row = self.df.loc[idx]
+        value = row[self.VACATION_DAYS_KEY]
+        self.vacation_days_labels[idx].value = (f"{value:.0f}")
 
     def update_annual_working_hours_label(self, idx):
         if idx not in self.annual_working_hours_labels:
@@ -765,6 +798,20 @@ class Finances:
         self.update_administration_costs(idx)
         self.update_public_funds(idx)
 
+    def handle_date_of_birth_update(self, idx, new_value):
+
+        self.df.at[idx, self.DATE_OF_BIRTH_KEY] = new_value
+
+        self.df.at[idx, self.VACATION_DAYS_KEY] = (
+            self.calculations.get_vacation_days(new_value, self.year.value))
+        self.update_vacation_days_label(idx)
+
+        # update dependencies
+        # TODO: update annual working hours
+        # TODO: update administration hours
+        self.update_administration_costs(idx)
+        self.update_public_funds(idx)
+
     def handle_employment_percentage_update(self, idx, new_value):
 
         self.df.at[idx, self.EMPLOYMENT_PERCENTAGE_KEY] = new_value
@@ -861,7 +908,7 @@ class Finances:
                 self.refresh_visualization()
 
             elif col == self.DATE_OF_BIRTH_KEY:
-                self.df.at[idx, col] = new_value
+                self.handle_date_of_birth_update(idx, new_value)
 
             elif col == self.EMPLOYMENT_PERCENTAGE_KEY:
                 self.handle_employment_percentage_update(idx, new_value)
@@ -889,6 +936,16 @@ class Finances:
         cell = self.get_cost_label(
             f"{value:.2f}", self.ANNUAL_WORKING_HOURS_KEY)
         self.annual_working_hours_labels[idx] = cell
+        return cell
+
+    def get_cell_vacation_days(self, idx, row):
+        birthdate = row.get(self.DATE_OF_BIRTH_KEY)
+        value = self.calculations.get_vacation_days(birthdate, self.year.value)
+        cell = self.get_cost_label(
+            f"{value:.0f}",
+            self.VACATION_DAYS_KEY
+        )
+        self.vacation_days_labels[idx] = cell
         return cell
 
     def get_cell_research_hours(self, idx, row):
@@ -957,6 +1014,10 @@ class Finances:
 
         elif col == self.DATE_OF_BIRTH_KEY:
             cell = self.get_date_of_birth_picker(row[col])
+
+        elif col == self.VACATION_DAYS_KEY:
+            cell = self.get_cell_vacation_days(idx, row)
+            observing = False
 
         elif col == self.EMPLOYMENT_PERCENTAGE_KEY:
             cell = self.get_float_slider(
