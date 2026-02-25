@@ -31,7 +31,7 @@ class Finances:
         self.save_button = widgets.Button(description="💾 " + _("Save"))
         self.save_button.on_click(lambda b: self.save_data())
 
-        finances_description_width = "210px"
+        finances_description_width = "250px"
         finances_widget_width = "400px"
         finances_style = {'description_width': finances_description_width}
         finances_layout = widgets.Layout(
@@ -353,7 +353,7 @@ class Finances:
             readout_format=",.2f",
             disabled=disabled,
             style={
-                'description_width': "210px",
+                'description_width': "250px",
                 'text_align': 'right'
             },
             layout=widgets.Layout(
