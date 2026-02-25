@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-25 00:32+0100\n"
+"POT-Creation-Date: 2026-02-25 01:18+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -57,100 +57,104 @@ msgstr ""
 msgid "Remaining Budget (CHF):"
 msgstr ""
 
-#: ../Finances.py:124
+#: ../Finances.py:125
 msgid "Name"
 msgstr ""
 
-#: ../Finances.py:125
+#: ../Finances.py:126
 msgid "Role"
 msgstr ""
 
-#: ../Finances.py:126
+#: ../Finances.py:127
 msgid "ILV"
 msgstr ""
 
-#: ../Finances.py:127
+#: ../Finances.py:128
 msgid "Hourly<br>Rate<br>(CHF)"
 msgstr ""
 
-#: ../Finances.py:128
+#: ../Finances.py:129
 msgid "Date of Birth"
 msgstr ""
 
-#: ../Finances.py:129
+#: ../Finances.py:130
 msgid "Vacation<br>Days"
 msgstr ""
 
-#: ../Finances.py:130
+#: ../Finances.py:131
 msgid "Employment<br>(%)"
 msgstr ""
 
-#: ../Finances.py:132
+#: ../Finances.py:133
 msgid "Annual<br>Working<br>Hours<br>(h)"
 msgstr ""
 
-#: ../Finances.py:134
+#: ../Finances.py:135
 msgid "Annual<br>Vacation<br>Hours<br>(h)"
 msgstr ""
 
-#: ../Finances.py:135
-msgid "Research<br>(%)"
-msgstr ""
-
 #: ../Finances.py:136
-msgid "Research<br>(h)"
+msgid "Vacation<br>(CHF)"
 msgstr ""
 
 #: ../Finances.py:137
-msgid "Acquisition<br>(h)"
+msgid "Research<br>(%)"
 msgstr ""
 
 #: ../Finances.py:138
+msgid "Research<br>(h)"
+msgstr ""
+
+#: ../Finances.py:139
+msgid "Acquisition<br>(h)"
+msgstr ""
+
+#: ../Finances.py:140
 msgid "Acquisition<br>(CHF)"
 msgstr ""
 
-#: ../Finances.py:139 ../Visualization.py:29 ../Visualization.py:51
+#: ../Finances.py:141 ../Visualization.py:29 ../Visualization.py:51
 #: ../Visualization.py:78
 msgid "Management"
 msgstr ""
 
-#: ../Finances.py:140
+#: ../Finances.py:142
 msgid "Management<br>(CHF)"
 msgstr ""
 
-#: ../Finances.py:141
+#: ../Finances.py:143
 msgid "Administration<br>(h)"
 msgstr ""
 
-#: ../Finances.py:143
+#: ../Finances.py:145
 msgid "Administration<br>(CHF)"
 msgstr ""
 
-#: ../Finances.py:144
+#: ../Finances.py:146
 msgid "Public<br>Funds<br>(CHF)"
 msgstr ""
 
-#: ../Finances.py:149
+#: ../Finances.py:151
 msgid "Lecturer"
 msgstr ""
 
-#: ../Finances.py:150
+#: ../Finances.py:152
 msgid "Scientific Staff"
 msgstr ""
 
-#: ../Finances.py:151
+#: ../Finances.py:153
 msgid "Research Assistant"
 msgstr ""
 
-#: ../Finances.py:158
+#: ../Finances.py:160
 msgid "Actions"
 msgstr ""
 
-#: ../Finances.py:249
+#: ../Finances.py:255
 msgid "Add"
 msgstr ""
 
-#: ../Finances.py:268
+#: ../Finances.py:275
 msgid "Filter"
 msgstr ""
 

@@ -53,12 +53,19 @@ class Calculations:
         except Exception:
             return 0
 
+    def get_vacation_costs(self, is_ilv, hourly_rate, hours):
+        if is_ilv:
+            return 0
+        else:
+            return self.get_float(hourly_rate) * self.get_float(hours)
+
     def get_costs(self, hourly_rate, hours):
         return self.get_float(hourly_rate) * self.get_float(hours)
 
-    def get_public_funds(self, acquisition_costs,
+    def get_public_funds(self, vacation_costs, acquisition_costs,
                          management_costs, administration_costs):
-        return (self.get_float(acquisition_costs) +
+        return (self.get_float(vacation_costs) +
+                self.get_float(acquisition_costs) +
                 self.get_float(management_costs) +
                 self.get_float(administration_costs))
 
