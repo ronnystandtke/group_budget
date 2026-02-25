@@ -87,6 +87,10 @@ class Finances:
             names="value"
         )
 
+        self.vacation_expenses = self.get_money_floattext(
+            0.0, _("Vacation Costs (CHF):"), disabled=True
+        )
+
         self.acquisition_expenses = self.get_money_floattext(
             0.0, _("Acquisition Costs (CHF):"), disabled=True
         )
@@ -521,6 +525,12 @@ class Finances:
         self.input_widgets[self.RESEARCH_PERCENTAGE_KEY].value = 50
         self.input_widgets[self.ACQUISITION_HOURS_KEY].value = 0
 
+    def compute_vacation_costs(self, row):
+        return self.calculations.get_vacation_costs(
+            row[self.ILV_KEY],
+            row[self.HOURLY_RATE_KEY],
+            row[self.ANNUAL_VACATION_HOURS_KEY])
+
     def compute_acquisition_costs(self, row):
         return self.calculations.get_costs(
             row[self.HOURLY_RATE_KEY], row[self.ACQUISITION_HOURS_KEY])
@@ -620,6 +630,11 @@ class Finances:
         value = self.compute_public_funds(row)
         self.public_funds_labels[idx].value = f"{value:,.2f}"
 
+    def update_total_vacation_costs(self):
+        total = self.df.apply(self.compute_vacation_costs, axis=1).sum()
+        self.vacation_expenses.value = total
+        self.update_remaining_budget()
+
     def update_total_acquisition_costs(self):
         total = self.df.apply(self.compute_acquisition_costs, axis=1).sum()
         self.acquisition_expenses.value = total
@@ -627,15 +642,17 @@ class Finances:
 
     def update_total_administration_costs(self):
         total = self.df.apply(self.compute_administration_costs, axis=1).sum()
-        self.administrative_expenses.value = total
+        self.administrative_expenses.value = round(total, 2)
         self.update_remaining_budget()
 
     def update_remaining_budget(self):
-        self.remaining_budget.value = self.calculations.get_remaining_budget(
+        value = self.calculations.get_remaining_budget(
             self.total_budget.value,
+            self.vacation_expenses.value,
             self.acquisition_expenses.value,
             self.management_allowance.value,
             self.administrative_expenses.value)
+        self.remaining_budget.value = round(value, 2)
 
     def update_management_allowance(self):
         self.spread_management_allowance()
@@ -1260,6 +1277,7 @@ class Finances:
             else:
                 self.sort_buttons[col].description = "↕"
 
+        self.update_total_vacation_costs()
         self.update_total_acquisition_costs()
         self.update_total_administration_costs()
         self.update_remaining_budget()
@@ -1340,6 +1358,7 @@ class Finances:
         budget_box = widgets.VBox([
             self.total_budget,
             self.management_allowance,
+            self.vacation_expenses,
             self.acquisition_expenses,
             self.administrative_expenses,
             self.remaining_budget]

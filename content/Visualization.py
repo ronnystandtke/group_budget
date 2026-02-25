@@ -26,8 +26,8 @@ class Visualization:
         # --- nodes and positioning ---
         all_labels = (
             [_("Total Budget"), _("Personnel Costs"), _("Acquisition"),
-             _("Administration"), _("Management"), _("Remaining")] +
-            sorted_names)
+             _("Administration"), _("Management"), _("Vacation"),
+             _("Remaining")] + sorted_names)
         label_map = {name: i for i, name in enumerate(all_labels)}
 
         # --- links ---
@@ -44,14 +44,17 @@ class Visualization:
         sources.extend([
             label_map[_("Personnel Costs")],
             label_map[_("Personnel Costs")],
+            label_map[_("Personnel Costs")],
             label_map[_("Personnel Costs")]])
         targets.extend([
             label_map[_("Acquisition")],
             label_map[_("Administration")],
+            label_map[_("Vacation")],
             label_map[_("Management")]])
         values.extend(
             [finances.df[finances.ACQUISITION_COSTS_KEY].sum(),
              finances.df[finances.ADMINISTRATION_COSTS_KEY].sum(),
+             finances.df[finances.VACATION_COSTS_KEY].sum(),
              finances.df[finances.MANAGEMENT_COSTS_KEY].sum()])
 
         # acquisition, administration and management cost splitting
@@ -63,6 +66,8 @@ class Visualization:
                 name, finances.ADMINISTRATION_COSTS_KEY]
             management_costs = name_df.loc[
                 name, finances.MANAGEMENT_COSTS_KEY]
+            vacation_costs = name_df.loc[
+                name, finances.VACATION_COSTS_KEY]
 
             if acquisition_costs > 0:
                 sources.append(label_map[_("Acquisition")])
@@ -79,19 +84,15 @@ class Visualization:
                 targets.append(label_map[name])
                 values.append(management_costs)
 
+            if vacation_costs > 0:
+                sources.append(label_map[_("Vacation")])
+                targets.append(label_map[name])
+                values.append(vacation_costs)
+
         # --- plot ---
 
         # custom colors
         employee_color = "#D8E4E8"
-
-        node_colors = [
-            "#C76A2A",  # Total Budget
-            "#D89A5A",  # Personnel Costs
-            "#9DB7C9",  # Acquisition
-            "#B7CEDA",  # Administration
-            "#B9CEDA",  # Management
-            "#9DBFA6",  # Remaining
-        ]
 
         node_colors = [
             "#C76A2A",  # Total Budget (warm orange)
@@ -99,6 +100,7 @@ class Visualization:
             "#5BAE6E",  # Acquisition (green)
             "#9E9E9E",  # Administration (neutral grey)
             "#4A6FA5",  # Management (calm blue)
+            "#FFC067",  # Vacation (orange)
             "#3C8D5A",  # Remaining (strong green)
         ]
 
