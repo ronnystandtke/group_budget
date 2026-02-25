@@ -73,6 +73,14 @@ class Finances:
             names="value"
         )
 
+        self.budgeted_sick_leave = self.get_money_floattext(
+            0.0, _("Budgeted Sick Leave Costs (CHF):")
+        )
+        self.budgeted_sick_leave.observe(
+            lambda change: self.update_budgeted_sick_leave(),
+            names="value"
+        )
+
         self.administration_percentage = widgets.FloatText(
             min=0,
             max=100,
@@ -483,6 +491,9 @@ class Finances:
             self.management_allowance.value = self.json_data.get(
                 self.file_handler.MANAGEMENT_ALLOWANCE_KEY, 0)
 
+            self.budgeted_sick_leave.value = self.json_data.get(
+                self.file_handler.BUDGETED_SICK_LEAVE_KEY_KEY, 0)
+
             self.administration_percentage.value = self.json_data.get(
                 self.file_handler.ADMINISTRATION_PERCENTAGE_KEY,
                 self.calculations.DEFAULT_ADMINISTRATION_PERCENTAGE)
@@ -508,6 +519,7 @@ class Finances:
                 self.annual_working_time.value,
                 self.total_budget.value,
                 self.management_allowance.value,
+                self.budgeted_sick_leave.value,
                 self.administration_percentage.value,
                 self.sort_df(self.df),
                 self.download_output)
@@ -648,14 +660,19 @@ class Finances:
     def update_remaining_budget(self):
         value = self.calculations.get_remaining_budget(
             self.total_budget.value,
+            self.management_allowance.value,
+            self.budgeted_sick_leave.value,
             self.vacation_expenses.value,
             self.acquisition_expenses.value,
-            self.management_allowance.value,
             self.administrative_expenses.value)
         self.remaining_budget.value = round(value, 2)
 
     def update_management_allowance(self):
         self.spread_management_allowance()
+        self.update_remaining_budget()
+        self.refresh_visualization()
+
+    def update_budgeted_sick_leave(self):
         self.update_remaining_budget()
         self.refresh_visualization()
 
@@ -1285,8 +1302,13 @@ class Finances:
         self.refresh_visualization()
 
     def refresh_visualization(self):
-        with self.visualization_output:
-            self.visualization.show(self)
+        try:
+            with self.visualization_output:
+                self.visualization.show(self)
+        except Exception:
+            print(traceback.format_exc())
+            with self.output:
+                print(traceback.format_exc())
 
     def get_header_widget(self, text, widht_key):
         # output border + output padding + padding in text fields
@@ -1358,6 +1380,7 @@ class Finances:
         budget_box = widgets.VBox([
             self.total_budget,
             self.management_allowance,
+            self.budgeted_sick_leave,
             self.vacation_expenses,
             self.acquisition_expenses,
             self.administrative_expenses,

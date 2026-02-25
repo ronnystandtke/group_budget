@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-25 01:18+0100\n"
+"POT-Creation-Date: 2026-02-25 02:56+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -41,120 +41,128 @@ msgstr ""
 msgid "Management Allowance (CHF):"
 msgstr ""
 
-#: ../Finances.py:81
+#: ../Finances.py:77
+msgid "Budgeted Sick Leave Costs (CHF):"
+msgstr ""
+
+#: ../Finances.py:89
 msgid "Administration (%)"
 msgstr ""
 
-#: ../Finances.py:91
+#: ../Finances.py:99
+msgid "Vacation Costs (CHF):"
+msgstr ""
+
+#: ../Finances.py:103
 msgid "Acquisition Costs (CHF):"
 msgstr ""
 
-#: ../Finances.py:95
+#: ../Finances.py:107
 msgid "Administative Costs (CHF):"
 msgstr ""
 
-#: ../Finances.py:99
+#: ../Finances.py:111
 msgid "Remaining Budget (CHF):"
 msgstr ""
 
-#: ../Finances.py:125
+#: ../Finances.py:137
 msgid "Name"
 msgstr ""
 
-#: ../Finances.py:126
+#: ../Finances.py:138
 msgid "Role"
 msgstr ""
 
-#: ../Finances.py:127
+#: ../Finances.py:139
 msgid "ILV"
 msgstr ""
 
-#: ../Finances.py:128
+#: ../Finances.py:140
 msgid "Hourly<br>Rate<br>(CHF)"
 msgstr ""
 
-#: ../Finances.py:129
+#: ../Finances.py:141
 msgid "Date of Birth"
 msgstr ""
 
-#: ../Finances.py:130
+#: ../Finances.py:142
 msgid "Vacation<br>Days"
 msgstr ""
 
-#: ../Finances.py:131
+#: ../Finances.py:143
 msgid "Employment<br>(%)"
 msgstr ""
 
-#: ../Finances.py:133
+#: ../Finances.py:145
 msgid "Annual<br>Working<br>Hours<br>(h)"
 msgstr ""
 
-#: ../Finances.py:135
+#: ../Finances.py:147
 msgid "Annual<br>Vacation<br>Hours<br>(h)"
 msgstr ""
 
-#: ../Finances.py:136
+#: ../Finances.py:148
 msgid "Vacation<br>(CHF)"
 msgstr ""
 
-#: ../Finances.py:137
+#: ../Finances.py:149
 msgid "Research<br>(%)"
 msgstr ""
 
-#: ../Finances.py:138
+#: ../Finances.py:150
 msgid "Research<br>(h)"
 msgstr ""
 
-#: ../Finances.py:139
+#: ../Finances.py:151
 msgid "Acquisition<br>(h)"
 msgstr ""
 
-#: ../Finances.py:140
+#: ../Finances.py:152
 msgid "Acquisition<br>(CHF)"
 msgstr ""
 
-#: ../Finances.py:141 ../Visualization.py:29 ../Visualization.py:51
-#: ../Visualization.py:78
+#: ../Finances.py:153 ../Visualization.py:31 ../Visualization.py:57
+#: ../Visualization.py:88
 msgid "Management"
 msgstr ""
 
-#: ../Finances.py:142
+#: ../Finances.py:154
 msgid "Management<br>(CHF)"
 msgstr ""
 
-#: ../Finances.py:143
+#: ../Finances.py:155
 msgid "Administration<br>(h)"
 msgstr ""
 
-#: ../Finances.py:145
+#: ../Finances.py:157
 msgid "Administration<br>(CHF)"
 msgstr ""
 
-#: ../Finances.py:146
+#: ../Finances.py:158
 msgid "Public<br>Funds<br>(CHF)"
 msgstr ""
 
-#: ../Finances.py:151
+#: ../Finances.py:163
 msgid "Lecturer"
 msgstr ""
 
-#: ../Finances.py:152
+#: ../Finances.py:164
 msgid "Scientific Staff"
 msgstr ""
 
-#: ../Finances.py:153
+#: ../Finances.py:165
 msgid "Research Assistant"
 msgstr ""
 
-#: ../Finances.py:160
+#: ../Finances.py:172
 msgid "Actions"
 msgstr ""
 
-#: ../Finances.py:255
+#: ../Finances.py:267
 msgid "Add"
 msgstr ""
 
-#: ../Finances.py:275
+#: ../Finances.py:287
 msgid "Filter"
 msgstr ""
 
@@ -177,31 +185,40 @@ msgid ""
 "                "
 msgstr ""
 
-#: ../Visualization.py:28 ../Visualization.py:38
+#: ../Visualization.py:30 ../Visualization.py:40
 msgid "Total Budget"
 msgstr ""
 
-#: ../Visualization.py:28 ../Visualization.py:40 ../Visualization.py:45
-#: ../Visualization.py:46 ../Visualization.py:47
+#: ../Visualization.py:30 ../Visualization.py:42 ../Visualization.py:47
+#: ../Visualization.py:48 ../Visualization.py:49 ../Visualization.py:50
+#: ../Visualization.py:51
 msgid "Personnel Costs"
 msgstr ""
 
-#: ../Visualization.py:28 ../Visualization.py:49 ../Visualization.py:68
+#: ../Visualization.py:30 ../Visualization.py:53 ../Visualization.py:78
 msgid "Acquisition"
 msgstr ""
 
-#: ../Visualization.py:29 ../Visualization.py:50 ../Visualization.py:73
+#: ../Visualization.py:31 ../Visualization.py:54 ../Visualization.py:83
 msgid "Administration"
 msgstr ""
 
-#: ../Visualization.py:29 ../Visualization.py:40
+#: ../Visualization.py:31 ../Visualization.py:55 ../Visualization.py:93
+msgid "Vacation"
+msgstr ""
+
+#: ../Visualization.py:32 ../Visualization.py:56
+msgid "Sick Leave"
+msgstr ""
+
+#: ../Visualization.py:32 ../Visualization.py:42
 msgid "Remaining"
 msgstr ""
 
-#: ../Visualization.py:136
+#: ../Visualization.py:144
 msgid "Budget Flow Analysis"
 msgstr ""
 
-#: ../Visualization.py:137
+#: ../Visualization.py:145
 msgid "Utilization: {utilization_percentage:.1f}% | Budget: {budget:,.2f} CHF"
 msgstr ""

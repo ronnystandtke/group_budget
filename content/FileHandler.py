@@ -13,6 +13,7 @@ class FileHandler:
         self.ANNUAL_WORKING_TIME_KEY = "annualWorkingTime"
         self.TOTAL_BUDGET_KEY = "totalBudget"
         self.MANAGEMENT_ALLOWANCE_KEY = "managementAllowance"
+        self.BUDGETED_SICK_LEAVE_KEY_KEY = "budgetedSickLeave"
         self.ADMINISTRATION_PERCENTAGE_KEY = "administrationPercentage"
         self.EMPLOYEES_KEY = "employees"
 
@@ -26,8 +27,8 @@ class FileHandler:
                 print(traceback.format_exc())
 
     def save_data(self, year, annual_working_time, total_budget,
-                  management_allowance, administration_percentage, df,
-                  download_output):
+                  management_allowance, budgeted_sick_leave,
+                  administration_percentage, df, download_output):
 
         try:
 
@@ -36,6 +37,7 @@ class FileHandler:
                 self.ANNUAL_WORKING_TIME_KEY: annual_working_time,
                 self.TOTAL_BUDGET_KEY: total_budget,
                 self.MANAGEMENT_ALLOWANCE_KEY: management_allowance,
+                self.BUDGETED_SICK_LEAVE_KEY_KEY: budgeted_sick_leave,
                 self.ADMINISTRATION_PERCENTAGE_KEY: administration_percentage,
                 self.EMPLOYEES_KEY: df.to_dict(orient='records')
             }

@@ -70,10 +70,11 @@ class Calculations:
                 self.get_float(administration_costs))
 
     def get_remaining_budget(
-            self, total_budget, vacation_expenses, acquisition_expenses,
-            management_expenses, administrative_expenses):
-        return (total_budget - vacation_expenses - acquisition_expenses -
-                management_expenses - administrative_expenses)
+            self, total_budget, management_expenses, sick_leave_expenses,
+            vacation_expenses, acquisition_expenses, administrative_expenses):
+        return (total_budget - management_expenses - sick_leave_expenses -
+                vacation_expenses - acquisition_expenses -
+                administrative_expenses)
 
     def get_vacation_days(self, birthdate, year):
         if not birthdate:

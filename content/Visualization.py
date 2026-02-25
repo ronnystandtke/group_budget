@@ -13,7 +13,9 @@ class Visualization:
     def show(self, finances):
 
         budget = finances.total_budget.value
-        total_spent = finances.df[finances.PUBLIC_FUNDS_KEY].sum()
+        budgeted_sick_leave = finances.budgeted_sick_leave.value
+        total_spent = (
+            finances.df[finances.PUBLIC_FUNDS_KEY].sum() + budgeted_sick_leave)
         remaining_budget = max(0, budget - total_spent)
         utilization_percentage = (
             (total_spent / budget) * 100 if budget > 0 else 0)
@@ -27,7 +29,7 @@ class Visualization:
         all_labels = (
             [_("Total Budget"), _("Personnel Costs"), _("Acquisition"),
              _("Administration"), _("Management"), _("Vacation"),
-             _("Remaining")] + sorted_names)
+             _("Sick Leave"), _("Remaining")] + sorted_names)
         label_map = {name: i for i, name in enumerate(all_labels)}
 
         # --- links ---
@@ -45,16 +47,19 @@ class Visualization:
             label_map[_("Personnel Costs")],
             label_map[_("Personnel Costs")],
             label_map[_("Personnel Costs")],
+            label_map[_("Personnel Costs")],
             label_map[_("Personnel Costs")]])
         targets.extend([
             label_map[_("Acquisition")],
             label_map[_("Administration")],
             label_map[_("Vacation")],
+            label_map[_("Sick Leave")],
             label_map[_("Management")]])
         values.extend(
             [finances.df[finances.ACQUISITION_COSTS_KEY].sum(),
              finances.df[finances.ADMINISTRATION_COSTS_KEY].sum(),
              finances.df[finances.VACATION_COSTS_KEY].sum(),
+             budgeted_sick_leave,
              finances.df[finances.MANAGEMENT_COSTS_KEY].sum()])
 
         # acquisition, administration and management cost splitting
@@ -101,6 +106,7 @@ class Visualization:
             "#9E9E9E",  # Administration (neutral grey)
             "#4A6FA5",  # Management (calm blue)
             "#FFC067",  # Vacation (orange)
+            "#D9534F",  # Sick Leave (muted red)
             "#3C8D5A",  # Remaining (strong green)
         ]
 
