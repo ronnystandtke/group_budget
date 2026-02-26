@@ -698,6 +698,11 @@ class Finances:
                 elif col == self.HOURLY_RATE_KEY:
                     val = self.calculations.get_int(val)
 
+                elif col == self.VACATION_DAYS_KEY:
+                    val = new_row[self.VACATION_DAYS_KEY] = (
+                        self.calculations.get_vacation_days(
+                            new_row[self.DATE_OF_BIRTH_KEY], self.year.value))
+
                 elif col == self.ANNUAL_WORKING_HOURS_KEY:
                     val = self.calculations.get_annual_working_hours(
                         self.annual_working_time.value,
@@ -732,10 +737,8 @@ class Finances:
                         self.IS_MANAGEMENT_KEY, new_row)
 
                 elif col == self.ADMINISTRATION_HOURS_KEY:
-                    is_management = self.input_widgets[
-                        self.IS_MANAGEMENT_KEY].value
                     val = self.calculations.get_administration_hours(
-                        is_management,
+                        self.input_widgets[self.IS_MANAGEMENT_KEY].value,
                         new_row[self.ANNUAL_WORKING_HOURS_KEY],
                         self.administration_percentage.value)
 
@@ -924,6 +927,7 @@ class Finances:
 
         self.df.at[idx, self.DATE_OF_BIRTH_KEY] = new_value
 
+        # update vacation days
         self.df.at[idx, self.VACATION_DAYS_KEY] = (
             self.calculations.get_vacation_days(new_value, self.year.value))
         self.update_vacation_days_label(idx)
