@@ -13,7 +13,7 @@ class FileHandler:
         self.ANNUAL_WORKING_TIME_KEY = "annualWorkingTime"
         self.TOTAL_BUDGET_KEY = "totalBudget"
         self.MANAGEMENT_ALLOWANCE_KEY = "managementAllowance"
-        self.BUDGETED_SICK_LEAVE_KEY_KEY = "budgetedSickLeave"
+        self.BUDGETED_SICK_LEAVE_KEY = "budgetedSickLeave"
         self.ADMINISTRATION_PERCENTAGE_KEY = "administrationPercentage"
         self.EMPLOYEES_KEY = "employees"
 
@@ -37,7 +37,7 @@ class FileHandler:
                 self.ANNUAL_WORKING_TIME_KEY: annual_working_time,
                 self.TOTAL_BUDGET_KEY: total_budget,
                 self.MANAGEMENT_ALLOWANCE_KEY: management_allowance,
-                self.BUDGETED_SICK_LEAVE_KEY_KEY: budgeted_sick_leave,
+                self.BUDGETED_SICK_LEAVE_KEY: budgeted_sick_leave,
                 self.ADMINISTRATION_PERCENTAGE_KEY: administration_percentage,
                 self.EMPLOYEES_KEY: df.to_dict(orient='records')
             }

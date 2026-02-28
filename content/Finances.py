@@ -492,7 +492,7 @@ class Finances:
                 self.file_handler.MANAGEMENT_ALLOWANCE_KEY, 0)
 
             self.budgeted_sick_leave.value = self.json_data.get(
-                self.file_handler.BUDGETED_SICK_LEAVE_KEY_KEY, 0)
+                self.file_handler.BUDGETED_SICK_LEAVE_KEY, 0)
 
             self.administration_percentage.value = self.json_data.get(
                 self.file_handler.ADMINISTRATION_PERCENTAGE_KEY,
