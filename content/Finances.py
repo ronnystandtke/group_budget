@@ -1031,6 +1031,9 @@ class Finances:
 
             elif col == self.ILV_KEY:
                 self.df.at[idx, col] = new_value
+                self.update_vacation_costs(idx)
+                self.update_public_funds(idx)
+                self.refresh_visualization()
 
             elif col == self.HOURLY_RATE_KEY:
                 self.handle_hourly_rate_update(idx, change)
